@@ -1,4 +1,4 @@
-lexer grammar CCLexer;
+lexer grammar MyLexer;
 /*
  * Lexer rules
  */
