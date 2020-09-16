@@ -51,12 +51,12 @@ vardecl
     | TYPE_FLOAT
     | TYPE_STRING
     ) IDENT
-    ( '[' TYPE_INT_CONSTANT ']'
+    ( '[' INT ']'
     )*
   ;
 
 atribstat
-  : lvalue ASSIGN
+  : lvalue '='
     ( expression
     | allocexpression
     | funccall
@@ -79,7 +79,7 @@ printstat
   ;
 
 readstat
-  : READ lvaule
+  : READ lvalue
   ;
 
 returnstat
@@ -139,7 +139,7 @@ numexpression
 term
   : unaryexpr
     ( ( '*'
-      | '\'
+      | '/'
       | '%'
       ) unaryexpr
     )*
@@ -155,9 +155,9 @@ unaryexpr
 
 factor
   : 
-    ( TYPE_INT_CONSTANT
-    | TYPE_FLOAT_CONSTANT
-    | TYPE_STRING_CONSTANT
+    ( INT
+    | FLOAT
+    | STRING
     | NULL
     | lvalue
     | '(' numexpression ')'
@@ -182,7 +182,6 @@ PRINT: 'print';
 NEW: 'new';
 BREAK: 'break';
 DEF: 'def';
-IDENT: 'ident';
 
 /*
  * Types
@@ -190,9 +189,6 @@ IDENT: 'ident';
 TYPE_STRING: 'string';
 TYPE_FLOAT: 'float';
 TYPE_INT: 'int';
-TYPE_INT_CONSTANT: 'int_constant';
-TYPE_FLOAT_CONSTANT: 'float_constant';
-TYPE_STRING_CONSTANT: 'string_constant';
 NULL: 'null';
 
 /*
@@ -205,3 +201,59 @@ NULL: 'null';
  * WHITESPACE: [ \t\r\n]+ -> skip;
  *
  */
+
+INT: [0-9]+;
+FLOAT: [0-9]+ '.' [0-9]+ | '.' [0-9]+;
+STRING: '"' ~('"')* '"';
+IDENT
+	:	JavaLetter JavaLetterOrDigit*
+	;
+
+fragment
+JavaLetter
+	:	[a-zA-Z$_] // these are the "java letters" below 0x7F
+	|	// covers all characters above 0x7F which are not a surrogate
+		~[\u0000-\u007F\uD800-\uDBFF]
+		{Character.isJavaIdentifierStart(_input.LA(-1))}?
+	|	// covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
+		[\uD800-\uDBFF] [\uDC00-\uDFFF]
+		{Character.isJavaIdentifierStart(Character.toCodePoint((char)_input.LA(-2), (char)_input.LA(-1)))}?
+	;
+
+fragment
+JavaLetterOrDigit
+	:	[a-zA-Z0-9$_] // these are the "java letters or digits" below 0x7F
+	|	// covers all characters above 0x7F which are not a surrogate
+		~[\u0000-\u007F\uD800-\uDBFF]
+		{Character.isJavaIdentifierPart(_input.LA(-1))}?
+	|	// covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
+		[\uD800-\uDBFF] [\uDC00-\uDFFF]
+		{Character.isJavaIdentifierPart(Character.toCodePoint((char)_input.LA(-2), (char)_input.LA(-1)))}?
+	;
+
+
+LPAREN : '(';
+RPAREN : ')';
+LBRACE : '{';
+RBRACE : '}';
+LBRACK : '[';
+RBRACK : ']';
+SEMI : ';';
+COMMA : ',';
+DOT : '.';
+
+ASSIGN : '=';
+GT : '>';
+LT : '<';
+COLON : ':';
+EQUAL : '==';
+LE : '<=';
+GE : '>=';
+NOTEQUAL : '!=';
+ADD : '+';
+SUB : '-';
+MUL : '*';
+DIV : '/';
+MOD : '%';
+
+WHITESPACE: [ \t\r\n]+ -> skip;

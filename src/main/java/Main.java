@@ -1,34 +1,23 @@
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.*;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.io.IOException;
 
-
 public class Main {
     public static void main(String[] args) throws IOException {
-        System.out.println("input");
+        try {
+            System.out.println("Starting Lexical Analysis");
 
-        // try {
-        //     System.out.println("input");
-
-        //     CharStream charStream = CharStreams.fromFileNmae("./examples/example1.ccc");
-        //     System.out.println("here1");
-        //     CCLexer lexer = new MyLexer(charStream);
-        //     System.out.println("here2");
-
-        //     CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
-        //     System.out.println("here3");
-
-        //     CCParser parser = new CCParser(commonTokenStream);
-        //     System.out.println("here4");
-
-        //     ParseTree parseTree = parser.translationunit();
-        //     System.out.println("done");
-
-        // } catch (IOException e) {
-        //     e.printStackTrace();
-        // }
+            CharStream charStream = CharStreams.fromFileName("./examples/example1.ccc");
+            CC2020Lexer lexer = new CC2020Lexer(charStream);
+            CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
+            CC2020Parser parser = new CC2020Parser(commonTokenStream);
+            parser.program();
+           
+            System.out.println("Done");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-
-
 }

@@ -3,3 +3,5 @@
 *.iws
 log/
 target/
+.classpath
+.project
