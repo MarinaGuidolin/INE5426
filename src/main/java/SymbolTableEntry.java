@@ -1,9 +1,9 @@
 public abstract class SymbolTableEntry {
 	
-	protected String scope;
 	protected String name;
+	protected int scope;
 	
-	public SymbolTableEntry(String name, String scope) {
+	public SymbolTableEntry(String name, int scope) {
 		this.name = name;
 		this.scope = scope;
 	}
@@ -12,7 +12,7 @@ public abstract class SymbolTableEntry {
 	
 	public abstract boolean isFunction();
 
-	public String getScope() {
+	public int getScope() {
 		return scope;
 	}
 	

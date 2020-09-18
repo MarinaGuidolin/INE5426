@@ -44,7 +44,9 @@ public class Main {
 
 			Utils.exportTokens(filePath, commonTokenStream);
 			
-			Utils.exportSymbolTable(filePath, symb.getSymbolTable());
+			Utils.exportSymbolTable(filePath, symb.getSymbolTable(), symb.getKeysName());
+			
+			System.out.println(symb.getSymbolTable().get(Integer.valueOf(1)).getValues());
 
 			if (errorTotal == 0) {
 				System.out.println("Well done!");

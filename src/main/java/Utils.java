@@ -40,9 +40,10 @@ public class Utils {
 			int line = token.getLine();
 			int startIndex = token.getStartIndex();
 			int stopIndex = token.getStopIndex();
+			int tokenIndex = token.getTokenIndex();
 
-			String stringToken = String.format("\nToken: <type=%s, lexem='%s', line=%d, startIndex=%d, stopIndex=%d>\n",
-					typeName, lexem, line, startIndex, stopIndex);
+			String stringToken = String.format("\nToken: <key= %d, type=%s, lexem='%s', line=%d, startIndex=%d, stopIndex=%d>\n",
+					tokenIndex, typeName, lexem, line, startIndex, stopIndex);
 
 			listTokens.add(stringToken);
 		}
@@ -55,7 +56,7 @@ public class Utils {
 
 		String newFileName = fileName + ".txt";
 
-		String directoryPath = createDirectory("\\Out\\Tokens\\", filePath);
+		String directoryPath = createDirectory("/Out/Tokens/", filePath);
 
 		String newFilePath = directoryPath + newFileName;
 
@@ -63,7 +64,7 @@ public class Utils {
 
 		FileWriter writer = new FileWriter(newFile);
 
-		writer.write("============> Tokens from the file " + filePath + "\n\n");
+		writer.write("============> Tokens from the file " + fileName + "\n\n");
 
 		for (String s : tokens) {
 			writer.write(s);
@@ -74,12 +75,12 @@ public class Utils {
 		writer.close();
 	}
 
-	static public void exportSymbolTable(String filePath, HashMap<String, SymbolTableEntry> symbolTable) throws IOException {
+	static public void exportSymbolTable(String filePath, HashMap<Integer, SymbolTableEntry> symbolTable, HashMap<Integer,String> indexToName) throws IOException {
 		String fileName = extractFileName(filePath);
 
 		String newFileName = fileName + ".txt";
 
-		String directoryPath = createDirectory("\\Out\\SymbolTable\\", filePath);
+		String directoryPath = createDirectory("/Out/SymbolTable/", filePath);
 
 		String newFilePath = directoryPath + newFileName;
 
@@ -87,10 +88,11 @@ public class Utils {
 
 		FileWriter writer = new FileWriter(newFile);
 		
-		writer.write("============> Symbol Table from the file " + filePath + "\n\n");
+		writer.write("============> Symbol Table from the file " + fileName + "\n\n");
 
-		for (String key : symbolTable.keySet()) {
-			String s = String.format("Entry: <key=%s, %s> \n", key, symbolTable.get(key).getValues());
+		for (Integer key : symbolTable.keySet()) {
+			String scope = indexToName.get(symbolTable.get(key).getScope());
+			String s = String.format("Entry: <key=%d, scope=%s, %s> \n", key, scope, symbolTable.get(key).getValues());
 			writer.write(s);
 		}
 

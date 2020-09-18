@@ -2,37 +2,49 @@ import java.util.HashMap;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class ExporterSymbolTable extends CC2020BaseListener {
 	
 //	<Name of Identifier, Is a Function?>
-	private HashMap<String, SymbolTableEntry> symbolTable = new HashMap<>();
+	private HashMap<Integer, SymbolTableEntry> symbolTable = new HashMap<Integer, SymbolTableEntry>();
+	
+	private HashMap<Integer, String> indexToName = new HashMap<Integer, String>();
 	
 //	Define the actual scope
-	private Stack<String> scopes = new Stack<>();
+	private Stack<Integer> scopes = new Stack<>();
 	
-	private int NumStatements = 0;
+	private int NumberOfStatements = 0;
 	
 	@Override
 	public void enterProgram(CC2020Parser.ProgramContext ctx) {
-		scopes.push("program");
+		
+		int tokenIndex = ctx.start.getTokenIndex();
+		
+		scopes.push(tokenIndex);
+		
+		indexToName.put(tokenIndex, "global");
 	}
 	
 	public void exitProgram(CC2020Parser.ProgramContext ctx) {
+		
 		scopes.pop();
 	}
 	
 	@Override
-	public void enterFuncdef(CC2020Parser.FuncdefContext ctx) {
-		String funcName = ctx.IDENT().getText();
-
-		if (!symbolTable.containsKey(funcName)) {
-			System.out.println("Adding " + funcName);
+	public void enterFuncdef(CC2020Parser.FuncdefContext ctx) {	
+		
+		TerminalNode node = ctx.IDENT();
+		String funcName = node.getText();
+		int tokenIndex = node.getSymbol().getTokenIndex();
+		
+		if (!symbolTable.containsKey(tokenIndex)) {
 			FunctionEntry funcEntry = new FunctionEntry(funcName, scopes.peek());
-			symbolTable.put(funcName, funcEntry);
+			symbolTable.put(tokenIndex, funcEntry);
 		}
 		
-		scopes.push(funcName);
+		scopes.push(tokenIndex);
+		indexToName.put(tokenIndex, funcName);
 	}
 	
 	@Override
@@ -42,10 +54,15 @@ public class ExporterSymbolTable extends CC2020BaseListener {
 	
 	@Override
 	public void enterStatelist(CC2020Parser.StatelistContext ctx) {
+		
 		if (ctx.getParent().getChild(0).getText().equals("{")) {
-			String statementName = "statement" + NumStatements;
-			NumStatements++;
-			scopes.push(statementName);
+			
+			int tokenIndex = ctx.getParent().start.getTokenIndex();
+
+			scopes.push(tokenIndex);
+			indexToName.put(tokenIndex, "Statement" + NumberOfStatements);
+			NumberOfStatements++;
+			
 		}
 	}
 	
@@ -58,23 +75,29 @@ public class ExporterSymbolTable extends CC2020BaseListener {
 	
 	@Override
 	public void enterVardecl(CC2020Parser.VardeclContext ctx) {
-		String type = ctx.getChild(0).getText();
+		
+		String type = ctx.start.getText();
+		int tokenIndex = ctx.IDENT().getSymbol().getTokenIndex();
 		String lexem = ctx.getChild(1).getText();
-		if (!symbolTable.containsKey(lexem)) {
-			System.out.println("Adding " + lexem);
+		
+		if (!symbolTable.containsKey(tokenIndex)) {
 			IdentifierEntry identEntry = new IdentifierEntry(lexem, scopes.peek(), type);
-			symbolTable.put((scopes.peek() + "_" + lexem), identEntry);
+			symbolTable.put(tokenIndex, identEntry);
 		}
 	}
 	
 	@Override
 	public void enterParamlist(CC2020Parser.ParamlistContext ctx) {
-		ParseTree child0 = ctx.getChild(0);
-		ParseTree terminalNode = ctx.IDENT();
-		if (child0 != null && terminalNode != null) {
-			String actualScope = scopes.peek();
-			String type = ctx.getChild(0).getText();
-			String identifier = ctx.IDENT().getText();
+		
+		ParseTree typeChild = ctx.getChild(0);
+		ParseTree lexemChild = ctx.IDENT();
+		
+		if (typeChild != null && lexemChild != null) {
+			
+			int actualScope = scopes.peek();
+			
+			String type = typeChild.getText();
+			String identifier = lexemChild.getText();
 			
 			if (symbolTable.containsKey(actualScope)) {
 	
@@ -85,8 +108,12 @@ public class ExporterSymbolTable extends CC2020BaseListener {
 			}
 		}
 	}
-
-	public HashMap<String, SymbolTableEntry> getSymbolTable() {
+	
+	public HashMap<Integer,SymbolTableEntry> getSymbolTable() {
 		return this.symbolTable;
+	}
+	
+	public HashMap<Integer, String> getKeysName() {
+		return this.indexToName;
 	}
 }

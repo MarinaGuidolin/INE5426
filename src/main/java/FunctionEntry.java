@@ -4,7 +4,7 @@ public class FunctionEntry extends SymbolTableEntry {
 
 	private ArrayList<String> parameters = null;
 
-	public FunctionEntry(String name, String scope) {
+	public FunctionEntry(String name, int scope) {
 		super(name, scope);
 		this.parameters = new ArrayList<String>();
 	}
@@ -12,7 +12,7 @@ public class FunctionEntry extends SymbolTableEntry {
 
 	@Override
 	public String getValues() {
-		String values = "name=" + name + ", scope=" + scope + ", params=[";
+		String values = "lexem=" + name + ", params=[";
 		for (int i = 0; i < parameters.size(); i++) {
 			if (i == parameters.size() - 1) {
 				values += parameters.get(i);
