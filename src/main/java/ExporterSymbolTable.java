@@ -12,6 +12,9 @@ public class ExporterSymbolTable extends CC2020BaseListener {
 	private Stack<String> scopes = new Stack<>();
 	
 	private int NumStatements = 0;
+
+	private HashMap<String,String> tokenKeys = new HashMap<String,String>();
+ 
 	
 	@Override
 	public void enterProgram(CC2020Parser.ProgramContext ctx) {
@@ -63,6 +66,7 @@ public class ExporterSymbolTable extends CC2020BaseListener {
 		if (!symbolTable.containsKey(lexem)) {
 			System.out.println("Adding " + lexem);
 			IdentifierEntry identEntry = new IdentifierEntry(lexem, scopes.peek(), type);
+			tokenKeys.put(lexem, (scopes.peek() + "_" + lexem));
 			symbolTable.put((scopes.peek() + "_" + lexem), identEntry);
 		}
 	}
@@ -80,6 +84,7 @@ public class ExporterSymbolTable extends CC2020BaseListener {
 	
 				FunctionEntry entry = (FunctionEntry) symbolTable.get(actualScope);
 				entry.putParameter("(lexem= " + identifier + ", type= " + type + ")");
+				tokenKeys.put(identifier, actualScope);
 				symbolTable.put(actualScope, entry);
 				
 			}
@@ -89,4 +94,11 @@ public class ExporterSymbolTable extends CC2020BaseListener {
 	public HashMap<String, SymbolTableEntry> getSymbolTable() {
 		return this.symbolTable;
 	}
+
+
+	public HashMap<String, String> getTokenKeys() {
+		return this.tokenKeys;
+	}
+
+
 }

@@ -24,9 +24,11 @@ public class Main {
 			System.out.println("Starting Lexical Analysis");
 
 			CharStream charStream = CharStreams.fromFileName(filePath);
+
 			CC2020Lexer lexer = new CC2020Lexer(charStream);
 
 			CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
+
 			CC2020Parser parser = new CC2020Parser(commonTokenStream);
 
 			ParseTree tree = parser.program();
@@ -34,6 +36,8 @@ public class Main {
 			ParseTreeWalker walker = new ParseTreeWalker();
 			
 			ExporterSymbolTable symb = new ExporterSymbolTable();
+
+			//OurToken token = new OurToken(symb.getSymbolTable(), commonTokenStream);
 			
 			walker.walk(symb, tree);
 				
@@ -42,7 +46,7 @@ public class Main {
 			System.out.println(
 					"Lexical analysis finished with: " + errorTotal + (errorTotal == 1 ? " error." : " errors"));
 
-			Utils.exportTokens(filePath, commonTokenStream);
+			Utils.exportTokens(filePath, commonTokenStream, symb.getTokenKeys());
 			
 			Utils.exportSymbolTable(filePath, symb.getSymbolTable());
 

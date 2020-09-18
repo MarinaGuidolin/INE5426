@@ -28,7 +28,7 @@ public class Utils {
 		return fileName;
 	}
 
-	static public void exportTokens(String filePath, CommonTokenStream tokens) throws IOException {
+	static public void exportTokens(String filePath, CommonTokenStream tokens, HashMap<String, String> tokenKeys) throws IOException {
 		ArrayList<String> listTokens = new ArrayList<>();
 
 		for (Token token : tokens.getTokens()) {
@@ -36,13 +36,19 @@ public class Utils {
 
 			String typeName = CC2020Lexer.VOCABULARY.getSymbolicName(type);
 			String lexem = token.getText();
+			String scope = "not in symbol table ";
+
+			if (tokenKeys.containsKey(lexem) == true){
+				scope = tokenKeys.get(lexem);
+			}
+				
 
 			int line = token.getLine();
 			int startIndex = token.getStartIndex();
 			int stopIndex = token.getStopIndex();
 
-			String stringToken = String.format("\nToken: <type=%s, lexem='%s', line=%d, startIndex=%d, stopIndex=%d>\n",
-					typeName, lexem, line, startIndex, stopIndex);
+			String stringToken = String.format("\nToken: <key=%s type=%s, lexem='%s', line=%d, startIndex=%d, stopIndex=%d>\n",
+					scope, typeName, lexem, line, startIndex, stopIndex);
 
 			listTokens.add(stringToken);
 		}
@@ -55,7 +61,7 @@ public class Utils {
 
 		String newFileName = fileName + ".txt";
 
-		String directoryPath = createDirectory("\\Out\\Tokens\\", filePath);
+		String directoryPath = createDirectory("/Out/Tokens/", filePath);
 
 		String newFilePath = directoryPath + newFileName;
 
@@ -79,7 +85,7 @@ public class Utils {
 
 		String newFileName = fileName + ".txt";
 
-		String directoryPath = createDirectory("\\Out\\SymbolTable\\", filePath);
+		String directoryPath = createDirectory("/Out/SymbolTable/", filePath);
 
 		String newFilePath = directoryPath + newFileName;
 

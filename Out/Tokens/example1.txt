@@ -1,0 +1,128 @@
+============> Tokens from the file ./examples/example1.ccc
+
+
+Token: <key=not in symbol table  type=DEF, lexem='def', line=1, startIndex=0, stopIndex=2>
+
+Token: <key=not in symbol table  type=IDENT, lexem='func1', line=1, startIndex=4, stopIndex=8>
+
+Token: <key=not in symbol table  type=LPAREN, lexem='(', line=1, startIndex=9, stopIndex=9>
+
+Token: <key=not in symbol table  type=TYPE_INT, lexem='int', line=1, startIndex=10, stopIndex=12>
+
+Token: <key=func1 type=IDENT, lexem='A', line=1, startIndex=14, stopIndex=14>
+
+Token: <key=not in symbol table  type=COMMA, lexem=',', line=1, startIndex=15, stopIndex=15>
+
+Token: <key=not in symbol table  type=TYPE_INT, lexem='int', line=1, startIndex=17, stopIndex=19>
+
+Token: <key=func1 type=IDENT, lexem='B', line=1, startIndex=21, stopIndex=21>
+
+Token: <key=not in symbol table  type=RPAREN, lexem=')', line=1, startIndex=22, stopIndex=22>
+
+Token: <key=not in symbol table  type=LBRACE, lexem='{', line=2, startIndex=24, stopIndex=24>
+
+Token: <key=not in symbol table  type=TYPE_INT, lexem='int', line=3, startIndex=28, stopIndex=30>
+
+Token: <key=func1_SM type=IDENT, lexem='SM', line=3, startIndex=32, stopIndex=33>
+
+Token: <key=not in symbol table  type=LBRACK, lexem='[', line=3, startIndex=34, stopIndex=34>
+
+Token: <key=not in symbol table  type=INT, lexem='2', line=3, startIndex=35, stopIndex=35>
+
+Token: <key=not in symbol table  type=RBRACK, lexem=']', line=3, startIndex=36, stopIndex=36>
+
+Token: <key=not in symbol table  type=SEMI, lexem=';', line=3, startIndex=37, stopIndex=37>
+
+Token: <key=func1_SM type=IDENT, lexem='SM', line=4, startIndex=41, stopIndex=42>
+
+Token: <key=not in symbol table  type=LBRACK, lexem='[', line=4, startIndex=43, stopIndex=43>
+
+Token: <key=not in symbol table  type=INT, lexem='0', line=4, startIndex=44, stopIndex=44>
+
+Token: <key=not in symbol table  type=RBRACK, lexem=']', line=4, startIndex=45, stopIndex=45>
+
+Token: <key=not in symbol table  type=ASSIGN, lexem='=', line=4, startIndex=47, stopIndex=47>
+
+Token: <key=func1 type=IDENT, lexem='A', line=4, startIndex=49, stopIndex=49>
+
+Token: <key=not in symbol table  type=ADD, lexem='+', line=4, startIndex=51, stopIndex=51>
+
+Token: <key=func1 type=IDENT, lexem='B', line=4, startIndex=53, stopIndex=53>
+
+Token: <key=not in symbol table  type=SEMI, lexem=';', line=4, startIndex=54, stopIndex=54>
+
+Token: <key=func1_SM type=IDENT, lexem='SM', line=5, startIndex=58, stopIndex=59>
+
+Token: <key=not in symbol table  type=LBRACK, lexem='[', line=5, startIndex=60, stopIndex=60>
+
+Token: <key=not in symbol table  type=INT, lexem='1', line=5, startIndex=61, stopIndex=61>
+
+Token: <key=not in symbol table  type=RBRACK, lexem=']', line=5, startIndex=62, stopIndex=62>
+
+Token: <key=not in symbol table  type=ASSIGN, lexem='=', line=5, startIndex=64, stopIndex=64>
+
+Token: <key=func1 type=IDENT, lexem='B', line=5, startIndex=66, stopIndex=66>
+
+Token: <key=not in symbol table  type=MUL, lexem='*', line=5, startIndex=68, stopIndex=68>
+
+Token: <key=principal_C type=IDENT, lexem='C', line=5, startIndex=70, stopIndex=70>
+
+Token: <key=not in symbol table  type=SEMI, lexem=';', line=5, startIndex=71, stopIndex=71>
+
+Token: <key=not in symbol table  type=RETURN, lexem='return', line=6, startIndex=75, stopIndex=80>
+
+Token: <key=not in symbol table  type=SEMI, lexem=';', line=6, startIndex=81, stopIndex=81>
+
+Token: <key=not in symbol table  type=RBRACE, lexem='}', line=7, startIndex=83, stopIndex=83>
+
+Token: <key=not in symbol table  type=DEF, lexem='def', line=9, startIndex=86, stopIndex=88>
+
+Token: <key=not in symbol table  type=IDENT, lexem='principal', line=9, startIndex=90, stopIndex=98>
+
+Token: <key=not in symbol table  type=LPAREN, lexem='(', line=9, startIndex=99, stopIndex=99>
+
+Token: <key=not in symbol table  type=RPAREN, lexem=')', line=9, startIndex=100, stopIndex=100>
+
+Token: <key=not in symbol table  type=LBRACE, lexem='{', line=10, startIndex=102, stopIndex=102>
+
+Token: <key=not in symbol table  type=TYPE_INT, lexem='int', line=11, startIndex=106, stopIndex=108>
+
+Token: <key=principal_C type=IDENT, lexem='C', line=11, startIndex=110, stopIndex=110>
+
+Token: <key=not in symbol table  type=SEMI, lexem=';', line=11, startIndex=111, stopIndex=111>
+
+Token: <key=not in symbol table  type=TYPE_INT, lexem='int', line=12, startIndex=115, stopIndex=117>
+
+Token: <key=principal_D type=IDENT, lexem='D', line=12, startIndex=119, stopIndex=119>
+
+Token: <key=not in symbol table  type=SEMI, lexem=';', line=12, startIndex=120, stopIndex=120>
+
+Token: <key=not in symbol table  type=TYPE_INT, lexem='int', line=13, startIndex=124, stopIndex=126>
+
+Token: <key=principal_R type=IDENT, lexem='R', line=13, startIndex=128, stopIndex=128>
+
+Token: <key=not in symbol table  type=SEMI, lexem=';', line=13, startIndex=129, stopIndex=129>
+
+Token: <key=principal_C type=IDENT, lexem='C', line=14, startIndex=133, stopIndex=133>
+
+Token: <key=not in symbol table  type=ASSIGN, lexem='=', line=14, startIndex=135, stopIndex=135>
+
+Token: <key=not in symbol table  type=INT, lexem='4', line=14, startIndex=137, stopIndex=137>
+
+Token: <key=not in symbol table  type=SEMI, lexem=';', line=14, startIndex=138, stopIndex=138>
+
+Token: <key=principal_D type=IDENT, lexem='D', line=15, startIndex=142, stopIndex=142>
+
+Token: <key=not in symbol table  type=ASSIGN, lexem='=', line=15, startIndex=144, stopIndex=144>
+
+Token: <key=not in symbol table  type=INT, lexem='5', line=15, startIndex=146, stopIndex=146>
+
+Token: <key=not in symbol table  type=SEMI, lexem=';', line=15, startIndex=147, stopIndex=147>
+
+Token: <key=not in symbol table  type=RETURN, lexem='return', line=16, startIndex=151, stopIndex=156>
+
+Token: <key=not in symbol table  type=SEMI, lexem=';', line=16, startIndex=157, stopIndex=157>
+
+Token: <key=not in symbol table  type=RBRACE, lexem='}', line=17, startIndex=159, stopIndex=159>
+
+Token: <key=not in symbol table  type=EOF, lexem='<EOF>', line=17, startIndex=160, stopIndex=159>

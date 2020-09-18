@@ -1,0 +1,8 @@
+============> Symbol Table from the file ./examples/example1.ccc
+
+Entry: <key=principal, name=principal, scope=program, params=[], isFunction=true> 
+Entry: <key=principal_D, name=D, scope=principal, type=int, isFunction=false> 
+Entry: <key=principal_C, name=C, scope=principal, type=int, isFunction=false> 
+Entry: <key=principal_R, name=R, scope=principal, type=int, isFunction=false> 
+Entry: <key=func1, name=func1, scope=program, params=[(lexem= A, type= int), (lexem= B, type= int)], isFunction=true> 
+Entry: <key=func1_SM, name=SM, scope=func1, type=int, isFunction=false> 
