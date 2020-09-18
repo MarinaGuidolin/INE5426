@@ -36,15 +36,15 @@ public class Main {
 			ExporterSymbolTable symb = new ExporterSymbolTable();
 			
 			walker.walk(symb, tree);
-			
-			symb.printSymbolTable();
-			
+				
 			int errorTotal = parser.getNumberOfSyntaxErrors();
 			
 			System.out.println(
 					"Lexical analysis finished with: " + errorTotal + (errorTotal == 1 ? " error." : " errors"));
 
 			Utils.exportTokens(filePath, commonTokenStream);
+			
+			Utils.exportSymbolTable(filePath, symb.getSymbolTable());
 
 			if (errorTotal == 0) {
 				System.out.println("Well done!");

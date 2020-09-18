@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
@@ -51,8 +52,8 @@ public class Utils {
 
 	static public void writeTokens(String filePath, ArrayList<String> tokens) throws IOException {
 		String fileName = extractFileName(filePath);
-		
-		String newFileName = fileName + "_tokens.txt";
+
+		String newFileName = fileName + ".txt";
 
 		String directoryPath = createDirectory("\\Out\\Tokens\\", filePath);
 
@@ -61,14 +62,39 @@ public class Utils {
 		File newFile = new File(newFilePath);
 
 		FileWriter writer = new FileWriter(newFile);
-		
-		writer.write("Tokens from the file " + newFilePath + "\n");
+
+		writer.write("============> Tokens from the file " + filePath + "\n\n");
 
 		for (String s : tokens) {
 			writer.write(s);
 		}
 
-		System.out.println("Os tokens do arquivo " + fileName + " se encontram no arquivo: " + newFilePath);
+		System.out.println("Os tokens do arquivo " + fileName + ".ccc se encontram no arquivo: " + newFilePath);
+
+		writer.close();
+	}
+
+	static public void exportSymbolTable(String filePath, HashMap<String, SymbolTableEntry> symbolTable) throws IOException {
+		String fileName = extractFileName(filePath);
+
+		String newFileName = fileName + ".txt";
+
+		String directoryPath = createDirectory("\\Out\\SymbolTable\\", filePath);
+
+		String newFilePath = directoryPath + newFileName;
+
+		File newFile = new File(newFilePath);
+
+		FileWriter writer = new FileWriter(newFile);
+		
+		writer.write("============> Symbol Table from the file " + filePath + "\n\n");
+
+		for (String key : symbolTable.keySet()) {
+			String s = String.format("Entry: <key=%s, %s> \n", key, symbolTable.get(key).getValues());
+			writer.write(s);
+		}
+
+		System.out.println("A tabela de símbolos do arquivo " + fileName + ".ccc se encontra no arquivo: " + newFilePath);
 
 		writer.close();
 	}
