@@ -1,19 +1,13 @@
-public abstract class SymbolTableEntry {
+public class SymbolTableEntry {
 	
-	protected String name;
-	protected int scope;
+	protected String lexem;
 	
-	public SymbolTableEntry(String name, int scope) {
-		this.name = name;
-		this.scope = scope;
+	public SymbolTableEntry(String lexem) {
+		this.lexem = lexem;
 	}
 	
-	public abstract String getValues();
-	
-	public abstract boolean isFunction();
-
-	public int getScope() {
-		return scope;
+	public String getValues() {
+		return "lexem = " + lexem + "";
 	}
 	
 }
