@@ -73,7 +73,7 @@ public class Utils {
 
 		FileWriter writer = new FileWriter(newFile);
 
-		writer.write("============> Tokens from the file " + fileName + "\n\n");
+		writer.write("============> Tokens from the file " + fileName + ".ccc\n\n");
 
 		for (String s : tokens) {
 			writer.write(s);
@@ -98,7 +98,7 @@ public class Utils {
 
 		FileWriter writer = new FileWriter(newFile);
 
-		writer.write("============> Symbol Table from the file " + fileName + "\n\n");
+		writer.write("============> Symbol Table from the file " + fileName + ".ccc\n\n");
 
 		for (String key : symbolTable.keySet()) {
 			String s = String.format("Entry: <key=%s, %s>\n", key, symbolTable.get(key).getValues());
