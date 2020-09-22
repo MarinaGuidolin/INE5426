@@ -232,6 +232,10 @@ JavaLetterOrDigit
 	;
 
 
+/*
+ * Symbols and Punctuation
+*/
+
 LPAREN : '(';
 RPAREN : ')';
 LBRACE : '{';
@@ -241,19 +245,28 @@ RBRACK : ']';
 SEMI : ';';
 COMMA : ',';
 DOT : '.';
+COLON : ':';
+
+/*
+ * Arithmetic Operators
+*/
 
 ASSIGN : '=';
-GT : '>';
-LT : '<';
-COLON : ':';
-EQUAL : '==';
-LE : '<=';
-GE : '>=';
-NOTEQUAL : '!=';
 ADD : '+';
 SUB : '-';
 MUL : '*';
 DIV : '/';
 MOD : '%';
+
+/*
+* Relational Operators
+*/
+
+GT : '>';
+LT : '<';
+EQUAL : '==';
+LE : '<=';
+GE : '>=';
+NOTEQUAL : '!=';
 
 WHITESPACE: [ \t\r\n]+ -> skip;
