@@ -1,5 +1,5 @@
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.HashSet;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -22,27 +22,26 @@ public class Main {
 
 			System.out.println("Starting Lexical Analysis");
 
+			// Read the file, and start the lexer and parser.
 			CharStream charStream = CharStreams.fromFileName(filePath);
 			CC2020Lexer lexer = new CC2020Lexer(charStream);
-
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			CC2020Parser parser = new CC2020Parser(tokens);
 
+			// Start the parser on the 'program' which is the initial grammar producer.
 			parser.program();
 
-			// Creating the symbol table with the tokens
-			HashMap<String, SymbolTableEntry> symbolTable = Utils.createSymbolTable(tokens);
-
-			int errorTotal = parser.getNumberOfSyntaxErrors();
+			// Creating the symbol table with the tokens.
+			HashSet<String> lexemeSet = Utils.createLexemeSet(tokens);
+			int totalErrors = parser.getNumberOfSyntaxErrors();
 
 			System.out.println(
-					"Lexical analysis finished with: " + errorTotal + (errorTotal == 1 ? " error." : " errors"));
+					"Lexical analysis finished with: " + totalErrors + (totalErrors == 1 ? " error." : " errors."));
 
-			Utils.exportTokens(filePath, tokens, symbolTable);
+			Utils.exportTokens(filePath, tokens, lexemeSet);
+			Utils.exportSymbolTable(filePath, lexemeSet);
 
-			Utils.exportSymbolTable(filePath, symbolTable);
-
-			if (errorTotal == 0) {
+			if (totalErrors == 0) {
 				System.out.println("Well done!");
 			}
 

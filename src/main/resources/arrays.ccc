@@ -32,7 +32,7 @@ def sum_by(int number, int array, int size)
 	}
 }
 
-def substract_by(int number, int array, int size)
+def subtract_by(int number, int array, int size)
 {
 	int i;
 	
@@ -112,7 +112,7 @@ def main()
 	number = 100;
 	
 	result = sum_by(number, array, size);
-	result = substract_by(number, array, size);
+	result = subtract_by(number, array, size);
 	result = sum(array, size);
 	result = max(array, size);
 	result = average(array, size);

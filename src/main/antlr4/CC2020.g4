@@ -132,10 +132,6 @@ numexpression
     )*
   ;
 
-/*
- * Operators
- * notice, DIV is a backward slash
- */
 term
   : unaryexpr
     ( ( '*'
@@ -190,17 +186,6 @@ TYPE_STRING: 'string';
 TYPE_FLOAT: 'float';
 TYPE_INT: 'int';
 NULL: 'null';
-
-/*
- * Literals (non-trivial)
- *
- * INT: [0-9]+;
- * FLOAT: [0-9]+ '.' [0-9]+ | '.' [0-9]+;
- * STRING: '"' ~('"')* '"';
- * ID: [a-zA-Z$_] ([a-zA-Z$_] | [0-9])*;
- * WHITESPACE: [ \t\r\n]+ -> skip;
- *
- */
 
 INT: [0-9]+;
 FLOAT: [0-9]+ '.' [0-9]+ | '.' [0-9]+;
