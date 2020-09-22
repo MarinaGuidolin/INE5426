@@ -1,7 +1,18 @@
 
 SHELL := /bin/bash
 
-file = "./examples/example1.ccc"
+example0 = "./examples/example0.ccc"
+
+example1 = "./examples/example1.ccc"
+
+arrays = "./examples/arrays.ccc"
+
+factorial = "./examples/factorial.ccc"
+
+matrix = "./examples/matrix.ccc"
+
+exemplo = example0
+
 
 .PHONY: clean compile package exec
 
@@ -23,4 +34,8 @@ package:
 	mvn package
 
 exec:
-	mvn exec:java -Dexec.args=$(file)
+	mvn exec:java -Dexec.args=$($(exemplo))
+
+
+
+

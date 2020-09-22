@@ -1,0 +1,119 @@
+def multiply_by(int number, int array, int size)
+{
+	int i;
+	
+	for (i = 0; i < size; i = i + 1) {
+		array[i] = array[i] * number;
+		print "Resultado: " + array[i];
+	}
+}
+
+def divide_by(int number, int array, int size) {
+	int i;
+	
+	if (number == 0) {
+		print "Nao eh possivel dividir por zero :/";
+		return;
+	}
+	
+	for (i = 0; i < size; i = i + 1) {
+		array[i] = array[i] / number;
+		print "Resultado: " + array[i];
+	}
+}
+
+def sum_by(int number, int array, int size) 
+{
+	int i;
+	
+	for (i = 0; i < size; i = i + 1) {
+		array[i] = array[i] + number;
+		print "Resultado: " + array[i];
+	}
+}
+
+def substract_by(int number, int array, int size)
+{
+	int i;
+	
+	for (i = 0; i < size; i = i + 1) {
+		array[i] = array[i] - number;
+		print "Resultado: " + array[i];
+	}
+}
+
+def sum(int array, int size)
+{
+	int sum;
+	int i;
+	sum = 0;
+	
+	for (i = 0; i < size; i = i + 1) {
+		sum = array[i] + sum;
+	}
+	
+	print "Resultado: " + sum;
+}
+
+def max(int array, int size) 
+{
+	int max;
+	int i;
+	int max_index;
+	max_index = 0;
+	max = array[0];
+	
+	for (i = 1; i < size; i = i + 1) {
+		if (array[i] > max) {
+			max = array[i];
+			max_index = i;
+		}
+	}
+	
+	print "O maior numero no array eh " + max + " e estah no indice " + max_index;
+}
+
+def average(int array, int size)
+{
+
+	if (size == 0 ) {
+		print "Nao eh possivel dividir por zero!";
+		return;
+	}
+	
+	int sum;
+	sum = sum(array, size);
+	int result;
+	result = sum / size;
+	
+	print "Resultado : " + result;	
+}
+
+def main()
+{
+	int array;
+	int i;
+	int result;
+	int size;
+	array = new int[20];
+	size = 20;
+	
+	for (i = 0; i < 20; i = i + 1) {
+		array[i] = i;
+	}
+	
+	int number;
+	number = 10;
+	
+	result = multiply_by(number, array, size);
+	number = 2;
+	
+	result = divide_by(number, array, size);
+	number = 100;
+	
+	result = sum_by(number, array, size);
+	result = substract_by(number, array, size);
+	result = sum(array, size);
+	result = max(array, size);
+	result = average(array, size);
+}

@@ -1,24 +1,23 @@
 grammar CC2020;
 
 
-program
-  :
+program:
     ( statement 
     | funclist
     )?
   ;
 
-funclist
-  : funcdef funclist
-  | funcdef
+funclist:
+    funcdef funclist
+    | funcdef
   ;
 
-funcdef 
-  : DEF IDENT '(' paramlist ')' '{' statelist '}'
+funcdef: 
+    DEF IDENT '(' paramlist ')' '{' statelist '}'
   ;
 
-paramlist
-  :
+paramlist:
+
     ( ( TYPE_INT
       | TYPE_FLOAT
       | TYPE_STRING
@@ -30,8 +29,8 @@ paramlist
     )?
   ;
 
-statement
-  :
+statement:
+
     ( vardecl ';'
     | atribstat ';'
     | printstat ';'
@@ -45,8 +44,8 @@ statement
     )
   ;
 
-vardecl
-  :
+vardecl:
+
     ( TYPE_INT
     | TYPE_FLOAT
     | TYPE_STRING
@@ -55,55 +54,58 @@ vardecl
     )*
   ;
 
-atribstat
-  : lvalue '='
+atribstat:
+    
+     lvalue '='
     ( expression
     | allocexpression
     | funccall
     )
   ;
 
-funccall
-  : IDENT '(' paramlistcall ')'
+funccall:
+  
+   IDENT '(' paramlistcall ')'
   ;
 
-paramlistcall
-  :
+paramlistcall:
+
     ( IDENT ',' paramlistcall
     | IDENT
     )?
   ;
 
-printstat
-  : PRINT expression
+printstat:
+
+    PRINT expression
   ;
 
-readstat
-  : READ lvalue
+readstat:
+   READ lvalue
   ;
 
-returnstat
-  : RETURN
+returnstat:
+    RETURN
   ;
 
-ifstat
-  : IF '(' expression ')' statement
+ifstat:
+   IF '(' expression ')' statement
     ( ELSE statement
     )?
   ;
 
-forstat
-  : FOR '(' atribstat ';' expression ';' atribstat ')' statement
+forstat:
+   FOR '(' atribstat ';' expression ';' atribstat ')' statement
   ;
 
-statelist
-  : statement
+statelist:
+    statement
     ( statelist
     )?
   ;
 
-allocexpression
-  : NEW
+allocexpression:
+    NEW
     ( TYPE_INT
     | TYPE_FLOAT
     | TYPE_STRING
@@ -112,8 +114,8 @@ allocexpression
     )+
   ;
 
-expression
-  : numexpression
+expression:
+   numexpression
     ( ( '<'
       | '>'
       | '<='
@@ -124,33 +126,33 @@ expression
     )?
   ;
 
-numexpression
-  : term
+numexpression:
+   term
     ( ( '+'
       | '-'
       ) term
     )*
   ;
 
-term
-  : unaryexpr
-    ( ( '*'
-      | '/'
-      | '%'
-      ) unaryexpr
-    )*
+term:
+    unaryexpr
+       ( ( '*'
+         | '/'
+         | '%'
+         ) unaryexpr
+       )*
   ;
 
-unaryexpr
-  :
+unaryexpr:
+
     ( ( '+'
       | '-' 
     ) )?
     factor
   ;
 
-factor
-  : 
+factor:
+
     ( INT
     | FLOAT
     | STRING
@@ -160,8 +162,9 @@ factor
     )
   ;
 
-lvalue
-  : IDENT
+lvalue:
+  
+   IDENT
     ( '[' numexpression ']'
     )*
   ;
