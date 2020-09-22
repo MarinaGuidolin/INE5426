@@ -13,7 +13,7 @@
 #### `make filepath="seuFilepath"`
 
 - Para executar o projeto usando algum dos exemplos disponíveis:
-#### `make exemplo=NomeDoExemplo"`
+#### `make exemplo=NomeDoExemplo`
 #### Os nomes dos exemplos disponíveis são:
 
 - exemplo0
