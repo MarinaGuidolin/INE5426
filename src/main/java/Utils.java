@@ -63,10 +63,10 @@ public class Utils {
 
 			if (lexemeSet.contains(lexeme)) {
 				stringOfToken = String.format(
-						"\nToken #%d: <key=%s, type=%s, lexeme=%s, line=%d, startIndex=%d, stopIndex=%d\n", tokenIndex,
+						"\nToken #%d: <key=%s, type=%s, lexeme=%s, line=%d, startIndex=%d, stopIndex=%d>\n", tokenIndex,
 						lexeme, typeName, lexeme, line, startIndex, stopIndex);
 			} else {
-				stringOfToken = String.format("\nToken #%d: <type=%s, lexeme=%s, line=%d, startIndex=%d, stopIndex=%d\n",
+				stringOfToken = String.format("\nToken #%d: <type=%s, lexeme=%s, line=%d, startIndex=%d, stopIndex=%d>\n",
 						tokenIndex, typeName, lexeme, line, startIndex, stopIndex);
 			}
 
@@ -155,7 +155,7 @@ public class Utils {
 	 * @return a set with all lexemes
 	 */
 	public static HashSet<String> createLexemeSet(CommonTokenStream tokens) {
-		HashSet<String> lexemeSet = new HashSet();
+		HashSet<String> lexemeSet = new HashSet<String>();
 
 		for (Token token : tokens.getTokens()) {
 			int type = token.getType();
