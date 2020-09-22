@@ -10,7 +10,7 @@
 ## Executando o projeto:
 
 - Para executar o projeto com um arquivo de sua escolha, executar: 
-#### `make file="filepath"`
+#### `make exemplo="filepath"`
 
 - Para executar o projeto usando algum dos exemplos disponíveis:
 #### `make exemplo=NomeDoExemplo"`
