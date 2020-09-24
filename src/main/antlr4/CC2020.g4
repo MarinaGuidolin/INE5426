@@ -144,7 +144,6 @@ term:
   ;
 
 unaryexpr:
-
     ( ( '+'
       | '-' 
     ) )?
@@ -152,7 +151,6 @@ unaryexpr:
   ;
 
 factor:
-
     ( INT
     | FLOAT
     | STRING
@@ -163,7 +161,6 @@ factor:
   ;
 
 lvalue:
-  
    IDENT
     ( '[' numexpression ']'
     )*
@@ -190,15 +187,13 @@ TYPE_FLOAT: 'float';
 TYPE_INT: 'int';
 NULL: 'null';
 
-fragment DIGIT: [0-9];
-fragment DIGITS: DIGIT+;
-fragment LETTER_: [a-zA-Z_];
-
 INT: DIGITS;
 FLOAT: DIGITS '.' DIGITS | '.' DIGITS;
-STRING: '"' ~('"')* '"';
-IDENT:	LETTER_(LETTER_|DIGIT)*;
 
+fragment DIGITS: [0-9]+;
+
+STRING: '"' ~('"')* '"';
+IDENT: [a-zA-Z_] ( [a-zA-Z0-9_] )*;
 
 /*
  * Symbols and Punctuation

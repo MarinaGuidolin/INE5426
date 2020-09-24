@@ -1,4 +1,4 @@
-// Generated from /home/marina/IdeaProjects/compiladores/src/main/antlr4/CC2020.g4 by ANTLR 4.8
+// Generated from /home/ljmotta/INE5426/src/main/antlr4/CC2020.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
