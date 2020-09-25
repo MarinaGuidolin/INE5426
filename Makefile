@@ -1,9 +1,8 @@
-
 SHELL := /bin/bash
 
-example0 = "./examples/example0.ccc"
+exemplo0 = "./examples/example0.ccc"
 
-example1 = "./examples/example1.ccc"
+exemplo1 = "./examples/example1.ccc"
 
 arrays = "./examples/arrays.ccc"
 
@@ -11,7 +10,9 @@ factorial = "./examples/factorial.ccc"
 
 matrix = "./examples/matrix.ccc"
 
-exemplo = example0
+filepath = "./examples/example0.ccc"
+
+exemplo = filepath
 
 
 .PHONY: clean compile package exec
@@ -35,6 +36,7 @@ package:
 
 exec:
 	mvn exec:java -Dexec.args=$($(exemplo))
+
 
 
 
