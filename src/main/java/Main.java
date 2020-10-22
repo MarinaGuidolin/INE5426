@@ -27,6 +27,7 @@ public class Main {
 			ConvCC20201Lexer lexer = new ConvCC20201Lexer(charStream);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			ConvCC20201Parser parser = new ConvCC20201Parser(tokens);
+			Utils utils = new Utils();
 
 			
 			// Start the parser on the 'program' which is the initial grammar producer.
@@ -36,9 +37,11 @@ public class Main {
 			// Creating the symbol table with the tokens.
 			HashSet<String> lexemeSet = Utils.createLexemeSet(tokens);
 			int totalErrors = parser.getNumberOfSyntaxErrors();
-
+			
 			System.out.println(
 					"Lexical analysis finished with: " + totalErrors + (totalErrors == 1 ? " error." : " errors."));
+			
+			utils.ruleError(parser, totalErrors);
 
 			Utils.exportTokens(filePath, tokens, lexemeSet);
 			Utils.exportSymbolTable(filePath, lexemeSet);

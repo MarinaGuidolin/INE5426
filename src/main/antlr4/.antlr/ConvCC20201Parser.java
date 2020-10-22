@@ -684,7 +684,7 @@ public class ConvCC20201Parser extends Parser {
 
 	public static class T1Context extends ParserRuleContext {
 		public TerminalNode LBRACK() { return getToken(ConvCC20201Parser.LBRACK, 0); }
-		public TerminalNode TYPE_INT() { return getToken(ConvCC20201Parser.TYPE_INT, 0); }
+		public TerminalNode INT() { return getToken(ConvCC20201Parser.INT, 0); }
 		public TerminalNode RBRACK() { return getToken(ConvCC20201Parser.RBRACK, 0); }
 		public T1Context(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -701,7 +701,7 @@ public class ConvCC20201Parser extends Parser {
 			setState(154);
 			match(LBRACK);
 			setState(155);
-			match(TYPE_INT);
+			match(INT);
 			setState(156);
 			match(RBRACK);
 			}
@@ -721,7 +721,7 @@ public class ConvCC20201Parser extends Parser {
 		public LvalueContext lvalue() {
 			return getRuleContext(LvalueContext.class,0);
 		}
-		public TerminalNode SEMI() { return getToken(ConvCC20201Parser.SEMI, 0); }
+		public TerminalNode ASSIGN() { return getToken(ConvCC20201Parser.ASSIGN, 0); }
 		public AtribstatContext atribstat() {
 			return getRuleContext(AtribstatContext.class,0);
 		}
@@ -740,7 +740,7 @@ public class ConvCC20201Parser extends Parser {
 			setState(158);
 			lvalue();
 			setState(159);
-			match(SEMI);
+			match(ASSIGN);
 			setState(160);
 			atribstat();
 			}
@@ -2047,10 +2047,10 @@ public class ConvCC20201Parser extends Parser {
 				factor();
 				}
 				break;
-			case TYPE_STRING:
-			case TYPE_FLOAT:
-			case TYPE_INT:
 			case NULL:
+			case INT:
+			case FLOAT:
+			case STRING:
 			case IDENT:
 			case LPAREN:
 				enterOuterAlt(_localctx, 3);
@@ -2075,9 +2075,9 @@ public class ConvCC20201Parser extends Parser {
 	}
 
 	public static class FactorContext extends ParserRuleContext {
-		public TerminalNode TYPE_INT() { return getToken(ConvCC20201Parser.TYPE_INT, 0); }
-		public TerminalNode TYPE_FLOAT() { return getToken(ConvCC20201Parser.TYPE_FLOAT, 0); }
-		public TerminalNode TYPE_STRING() { return getToken(ConvCC20201Parser.TYPE_STRING, 0); }
+		public TerminalNode INT() { return getToken(ConvCC20201Parser.INT, 0); }
+		public TerminalNode FLOAT() { return getToken(ConvCC20201Parser.FLOAT, 0); }
+		public TerminalNode STRING() { return getToken(ConvCC20201Parser.STRING, 0); }
 		public TerminalNode NULL() { return getToken(ConvCC20201Parser.NULL, 0); }
 		public LvalueContext lvalue() {
 			return getRuleContext(LvalueContext.class,0);
@@ -2100,25 +2100,25 @@ public class ConvCC20201Parser extends Parser {
 			setState(327);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
-			case TYPE_INT:
+			case INT:
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(318);
-				match(TYPE_INT);
+				match(INT);
 				}
 				break;
-			case TYPE_FLOAT:
+			case FLOAT:
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(319);
-				match(TYPE_FLOAT);
+				match(FLOAT);
 				}
 				break;
-			case TYPE_STRING:
+			case STRING:
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(320);
-				match(TYPE_STRING);
+				match(STRING);
 				}
 				break;
 			case NULL:
@@ -2248,8 +2248,8 @@ public class ConvCC20201Parser extends Parser {
 		"\u0093\u0094\7\23\2\2\u0094\u0096\5\22\n\2\u0095\u008c\3\2\2\2\u0095\u008f"+
 		"\3\2\2\2\u0095\u0092\3\2\2\2\u0096\21\3\2\2\2\u0097\u0098\5\24\13\2\u0098"+
 		"\u0099\5\22\n\2\u0099\u009b\3\2\2\2\u009a\u0097\3\2\2\2\u009a\u009b\3"+
-		"\2\2\2\u009b\23\3\2\2\2\u009c\u009d\7\30\2\2\u009d\u009e\7\16\2\2\u009e"+
-		"\u009f\7\31\2\2\u009f\25\3\2\2\2\u00a0\u00a1\5N(\2\u00a1\u00a2\7\32\2"+
+		"\2\2\2\u009b\23\3\2\2\2\u009c\u009d\7\30\2\2\u009d\u009e\7\20\2\2\u009e"+
+		"\u009f\7\31\2\2\u009f\25\3\2\2\2\u00a0\u00a1\5N(\2\u00a1\u00a2\7\36\2"+
 		"\2\u00a2\u00a3\5\26\f\2\u00a3\27\3\2\2\2\u00a4\u00a5\7\23\2\2\u00a5\u00b4"+
 		"\5\32\16\2\u00a6\u00b4\5\62\32\2\u00a7\u00a8\7\37\2\2\u00a8\u00b4\5L\'"+
 		"\2\u00a9\u00aa\7 \2\2\u00aa\u00b4\5L\'\2\u00ab\u00b4\7\16\2\2\u00ac\u00b4"+
@@ -2301,10 +2301,10 @@ public class ConvCC20201Parser extends Parser {
 		"\u0137\u0133\3\2\2\2\u0137\u0135\3\2\2\2\u0138I\3\2\2\2\u0139\u013a\7"+
 		"\37\2\2\u013a\u013f\5L\'\2\u013b\u013c\7 \2\2\u013c\u013f\5L\'\2\u013d"+
 		"\u013f\5L\'\2\u013e\u0139\3\2\2\2\u013e\u013b\3\2\2\2\u013e\u013d\3\2"+
-		"\2\2\u013fK\3\2\2\2\u0140\u014a\7\16\2\2\u0141\u014a\7\r\2\2\u0142\u014a"+
-		"\7\f\2\2\u0143\u014a\7\17\2\2\u0144\u014a\5N(\2\u0145\u0146\7\24\2\2\u0146"+
-		"\u0147\5> \2\u0147\u0148\7\25\2\2\u0148\u014a\3\2\2\2\u0149\u0140\3\2"+
-		"\2\2\u0149\u0141\3\2\2\2\u0149\u0142\3\2\2\2\u0149\u0143\3\2\2\2\u0149"+
+		"\2\2\u013fK\3\2\2\2\u0140\u014a\7\20\2\2\u0141\u014a\7\21\2\2\u0142\u014a"+
+		"\7\22\2\2\u0143\u014a\7\17\2\2\u0144\u014a\5N(\2\u0145\u0146\7\24\2\2"+
+		"\u0146\u0147\5> \2\u0147\u0148\7\25\2\2\u0148\u014a\3\2\2\2\u0149\u0140"+
+		"\3\2\2\2\u0149\u0141\3\2\2\2\u0149\u0142\3\2\2\2\u0149\u0143\3\2\2\2\u0149"+
 		"\u0144\3\2\2\2\u0149\u0145\3\2\2\2\u014aM\3\2\2\2\u014b\u014c\7\23\2\2"+
 		"\u014c\u014d\5\66\34\2\u014dO\3\2\2\2\30RXlp\u008a\u0095\u009a\u00b3\u00be"+
 		"\u00c7\u00cb\u00de\u00ee\u00ff\u0104\u0119\u0121\u0127\u012f\u0137\u013e"+

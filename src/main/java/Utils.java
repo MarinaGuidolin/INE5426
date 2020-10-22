@@ -168,4 +168,14 @@ public class Utils {
 
 		return lexemeSet;
 	}
+
+	public void ruleError(ConvCC20201Parser parser, int totalErrors) {
+		
+		if (totalErrors != 0) {
+			for (String s : parser.getRuleInvocationStack()){
+				System.out.println(s);
+			}
+		}
+
+	}
 }

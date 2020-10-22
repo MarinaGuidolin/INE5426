@@ -61,11 +61,11 @@ a:
 ; 
 
 t1: 
-	LBRACK TYPE_INT RBRACK;
+	LBRACK INT RBRACK;
 
 atribstat:
 	
-	lvalue SEMI atribstat 
+	lvalue ASSIGN atribstat 
 ;
 
 atribstat1:
@@ -221,9 +221,9 @@ unaryexpr:
 ;
 
 factor:
-	TYPE_INT
-	| TYPE_FLOAT
-	| TYPE_STRING
+	INT
+	| FLOAT
+	| STRING
 	| NULL
 	| lvalue 
 	| LPAREN numexpression RPAREN
