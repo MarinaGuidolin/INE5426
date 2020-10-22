@@ -24,9 +24,9 @@ public class Main {
 
 			// Read the file, and start the lexer and parser.
 			CharStream charStream = CharStreams.fromFileName(filePath);
-			CC2020Lexer lexer = new CC2020Lexer(charStream);
+			ConvCC20201Lexer lexer = new ConvCC20201Lexer(charStream);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
-			CC2020Parser parser = new CC2020Parser(tokens);
+			ConvCC20201Parser parser = new ConvCC20201Parser(tokens);
 
 			// Start the parser on the 'program' which is the initial grammar producer.
 			parser.program();

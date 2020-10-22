@@ -51,7 +51,7 @@ public class Utils {
 
 		for (Token token : tokens.getTokens()) {
 			int type = token.getType();
-			String typeName = CC2020Lexer.VOCABULARY.getSymbolicName(type);
+			String typeName = ConvCC20201Lexer.VOCABULARY.getSymbolicName(type);
 			String lexeme = token.getText();
 
 			int line = token.getLine();
@@ -159,7 +159,7 @@ public class Utils {
 
 		for (Token token : tokens.getTokens()) {
 			int type = token.getType();
-			String typeName = CC2020Lexer.VOCABULARY.getSymbolicName(type);
+			String typeName = ConvCC20201Lexer.VOCABULARY.getSymbolicName(type);
 
 			if (typeName.equals("IDENT")) {
 				lexemeSet.add(token.getText());
