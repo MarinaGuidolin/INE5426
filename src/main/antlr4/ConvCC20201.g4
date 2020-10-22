@@ -65,7 +65,7 @@ t1:
 
 atribstat:
 	
-	lvalue ASSIGN atribstat 
+	lvalue ASSIGN atribstat1 
 ;
 
 atribstat1:
@@ -74,9 +74,9 @@ atribstat1:
 	| allocexpression 
 	| ADD factor 
 	| SUB factor 
-	| TYPE_INT 
-	| TYPE_FLOAT 
-	| TYPE_STRING 
+	| INT
+  	| FLOAT
+  	| STRING
 	| NULL
 	| LPAREN numexpression RPAREN
 ;
@@ -85,11 +85,6 @@ atribstat1:
 
 	b d c expression2 
 	|   LPAREN paramlistcall RPAREN
-;
-
-funcall:
-
-	IDENT LPAREN paramlistcall RPAREN
 ;
 
 paramlistcall:
