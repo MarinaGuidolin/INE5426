@@ -28,7 +28,9 @@ public class Main {
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			ConvCC20201Parser parser = new ConvCC20201Parser(tokens);
 
+			
 			// Start the parser on the 'program' which is the initial grammar producer.
+			
 			parser.program();
 
 			// Creating the symbol table with the tokens.

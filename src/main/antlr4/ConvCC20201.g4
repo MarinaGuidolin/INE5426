@@ -2,236 +2,235 @@ grammar ConvCC20201;
 
 program:
 
- 	(STATEMENT 
-	| FUNCLIST)? 
+ 	(statement 
+	| funclist)? 
 ;
 
-FUNCLIST: 
+funclist: 
 
-	FUNCDEF FUNCLIST2 
+	funcdef funclist2 
 ;
 
-fragment FUNCLIST2:  
+funclist2:  
 
-	FUNCLIST?
+	funclist?
 ;
 
-FUNCDEF:
-	 DEF IDENT '(' PARAMLIST ')' '{' STATELIST '}'
+funcdef:
+	 DEF IDENT LPAREN paramlist RPAREN LBRACE statelist RBRACE
 ;
 
-fragment PARAMLIST:
+paramlist:
 
-	(TYPE_INT IDENT PARAMLIST2 
-	| TYPE_FLOAT IDENT PARAMLIST2
-	| TYPE_STRING IDENT PARAMLIST2 
+	(TYPE_INT IDENT paramlist2 
+	| TYPE_FLOAT IDENT paramlist2
+	| TYPE_STRING IDENT paramlist2 
 	)?
 ;
 
-fragment PARAMLIST2:
+paramlist2:
 
-	(',' PARAMLIST 
+	( COMMA paramlist 
 	)?
 
 ;
 
-STATEMENT:
+statement:
 
-	VARDECL SEMI 
-	| ATRIBSTAT SEMI 
-	| PRINTSTAT SEMI
-	| READSTAT SEMI 
-	| RETURNSTAT SEMI
-	| IFSTAT 
-	| FORSTAT 
-	| '{' STATELIST '}' 
+	vardecl SEMI 
+	| atribstat SEMI 
+	| printstat SEMI
+	| readstat SEMI 
+	| returnstat SEMI
+	| ifstat 
+	| forstat 
+	| LBRACE statelist RBRACE 
 	| BREAK SEMI | SEMI
 ;
 
-VARDECL:
+vardecl:
 
-	TYPE_INT IDENT A 
-	| TYPE_FLOAT IDENT A 
-	| TYPE_STRING IDENT A
+	TYPE_INT IDENT a 
+	| TYPE_FLOAT IDENT a 
+	| TYPE_STRING IDENT a
 ;
 
-fragment A:
-	(T1 A 
+a:
+	(t1 a 
 	)?
 ; 
 
-T1: 
-	'[' TYPE_INT ']'
-;
+t1: 
+	LBRACK TYPE_INT RBRACK;
 
-ATRIBSTAT:
+atribstat:
 	
-	LVALUE SEMI ATRIBSTAT1 
+	lvalue SEMI atribstat 
 ;
 
-ATRIBSTAT1:
+atribstat1:
 
-	IDENT  ATRIBSTAT2
-	| ALLOCEXPRESSION 
-	| '+' FACTOR 
-	| '-' FACTOR 
+	IDENT  atribstat2
+	| allocexpression 
+	| ADD factor 
+	| SUB factor 
 	| TYPE_INT 
 	| TYPE_FLOAT 
 	| TYPE_STRING 
 	| NULL
-	| '(' NUMEXPRESSION ')'
+	| LPAREN numexpression RPAREN
 ;
 
- fragment ATRIBSTAT2: 
+ atribstat2: 
 
-	B D C EXPRESSION2 
-	|   '(' PARAMLISTCALL ')'
+	b d c expression2 
+	|   LPAREN paramlistcall RPAREN
 ;
 
-FUNCCALL:
+funcall:
 
-	IDENT '(' PARAMLISTCALL ')'
+	IDENT LPAREN paramlistcall RPAREN
 ;
 
-fragment PARAMLISTCALL:
+paramlistcall:
 
-	(IDENT PARAMLISTCALL2
+	(IDENT paramlistcall2
 	)?
 ;
 
-fragment PARAMLISTCALL2:
+paramlistcall2:
 
-	(',' PARAMLISTCALL 
+	(COMMA paramlistcall 
 	)?
 ; 
 
-PRINTSTAT:
+printstat:
 
-	PRINT EXPRESSION
+	PRINT expression
 ;
 
-READSTAT:
+readstat:
 
-	READ LVALUE
+	READ lvalue
 ;
 
-RETURNSTAT:
+returnstat:
 
 	RETURN
 ;
 
-IFSTAT:
+ifstat:
 
-	IF (EXPRESSION) STATEMENT IFSTAT2
+	IF (expression) LBRACE statelist RBRACE ifstat2
 ;
 
-fragment IFSTAT2:
+ifstat2:
 
-	(ELSE STATEMENT 
+	(ELSE statement 
 	)?
 ;
 
-FORSTAT:
+forstat:
 
-	FOR '(' ATRIBSTAT SEMI EXPRESSION SEMI ATRIBSTAT ')' STATEMENT
+	FOR LPAREN atribstat SEMI expression SEMI atribstat RPAREN statement
 ;
 
-STATELIST: 
+statelist: 
 
-	STATEMENT STATELIST2
+	statement statelist2
 ;
 
-fragment STATELIST2:
+statelist2:
 
-	(STATELIST 
+	(statelist 
 	)?
 ;	
 
-ALLOCEXPRESSION:
+allocexpression:
 
-	NEW ALLOCEXPRESSION2
+	NEW allocexpression1
 ;
 
-ALLOCEXPRESSION2:
+allocexpression1:
 
-	TYPE_INT T2 B 
-	| TYPE_FLOAT T2 B 
-	| TYPE_STRING T2 B
+	TYPE_INT t2 b 
+	| TYPE_FLOAT t2 b 
+	| TYPE_STRING t2 b
 ;
 
-fragment B:
-	(T2 B 
+b:
+	(t2 b 
 	)?
 ;
 
-T2:
-	'[' NUMEXPRESSION ']'
+t2:
+	LBRACK numexpression RBRACK
 ;
 
-EXPRESSION:
+expression:
 
-	NUMEXPRESSION EXPRESSION2
+	numexpression expression2
 ; 
 
-fragment EXPRESSION2:
+expression2:
 
-	('<' NUMEXPRESSION 
-	| '>' NUMEXPRESSION 
-	| '<=' NUMEXPRESSION 
-	|'>=' NUMEXPRESSION 
-	| '==' NUMEXPRESSION 
-	|  '!=' NUMEXPRESSION 
+	(GT numexpression 
+	| LT numexpression 
+	| LE numexpression 
+	| GE numexpression 
+	| EQUAL numexpression 
+	| NOTEQUAL numexpression 
 	)?
 ; 
 
-NUMEXPRESSION:
+numexpression:
 
-	TERM C
+	term c
 ;
 
-fragment C:
-	(T3 C 
+c:
+	(t3 c 
 	)?
 ;
 
-T3: 
-	'+' TERM 
-	| '-' TERM
+t3: 
+	ADD term 
+	| SUB term
 ;
 
-TERM:
-	 UNARYEXPR D
+term:
+	 unaryexpr d
 ;
 
-fragment D: 
-	(T4 D 
+d: 
+	(t4 d
 	)?
 ;
 
-T4: 
-	'*' UNARYEXPR 
-	| '/' UNARYEXPR
-	| '%' UNARYEXPR
+t4: 
+	MUL unaryexpr 
+	| DIV unaryexpr
+	| MOD unaryexpr
 ;
 
-UNARYEXPR:
+unaryexpr:
 
-	'+' FACTOR 
-	| '-' FACTOR 
-	| FACTOR
+	ADD factor 
+	| SUB factor 
+	| factor
 ;
 
-FACTOR:
+factor:
 	TYPE_INT
 	| TYPE_FLOAT
 	| TYPE_STRING
 	| NULL
-	| LVALUE 
-	| '(' NUMEXPRESSION ')'
+	| lvalue 
+	| LPAREN numexpression RPAREN
 ;
 
-LVALUE:
-	 IDENT B
+lvalue:
+	 IDENT b
 ;
 
 /*
