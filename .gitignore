@@ -5,5 +5,5 @@ log/
 target/
 .classpath
 .project
-
+.settings
 Out/
