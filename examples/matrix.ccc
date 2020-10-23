@@ -28,7 +28,8 @@ def multiply(int matrixA, int matrixB, int linesA, int columnsA, int columnsB)
 	for (i = 0; i < linesA; i = i + 1) {
 		for (j = 0; j < columnsB; j = j + 1) {
 			for (k = 0; k < columnsA; k = k + 1) {
-				matrixC[i][j] = (matrixA[i][k] * matrixB[k][j]) + matrixC[i][j];
+				matrixC[i][j] = (matrixA[i][k] * matrixB[k][j]);
+				matrixC[i][j] = matrixC[i][j] + matrixC[i][j];
 			}
 		}
 	}

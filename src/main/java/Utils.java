@@ -62,9 +62,10 @@ public class Utils {
 			String stringOfToken = "";
 
 			if (lexemeSet.contains(lexeme)) {
-				stringOfToken = String.format(
+				String format = String.format(
 						"\nToken #%d: <key=%s, type=%s, lexeme=%s, line=%d, startIndex=%d, stopIndex=%d>\n", tokenIndex,
 						lexeme, typeName, lexeme, line, startIndex, stopIndex);
+				stringOfToken = format;
 			} else {
 				stringOfToken = String.format("\nToken #%d: <type=%s, lexeme=%s, line=%d, startIndex=%d, stopIndex=%d>\n",
 						tokenIndex, typeName, lexeme, line, startIndex, stopIndex);
@@ -167,15 +168,5 @@ public class Utils {
 		}
 
 		return lexemeSet;
-	}
-
-	public void ruleError(ConvCC20201Parser parser, int totalErrors) {
-		
-		if (totalErrors != 0) {
-			for (String s : parser.getRuleInvocationStack()){
-				System.out.println(s);
-			}
-		}
-
 	}
 }

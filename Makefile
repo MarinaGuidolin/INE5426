@@ -12,6 +12,8 @@ matrix = "./examples/matrix.ccc"
 
 filepath = "./examples/example0.ccc"
 
+sort = "./examples/sort.ccc"
+
 exemplo = filepath
 
 

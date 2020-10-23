@@ -1,0 +1,107 @@
+ def divide_left_right_array()
+ {  
+    int array;
+    array = new int[8];
+    array[0] = 1; 
+    array[1] = 2;
+    array[2] = 4;
+    array[3] = 3;
+    array[4] = 8;
+    array[5] = 5;
+    array[6] = 6;
+    array[7] = 9;
+    int len;
+    len = 8;
+
+    if (len < 2){
+        return;
+    }
+
+    int mid;
+    mid = len / 2;
+    int left_arr;
+    left_arr = new int[mid];
+    int right_arr;
+    int rightArraySize;
+    rightArraySize = len - mid;
+    right_arr = new int[rightArraySize];
+    int k;
+    k = 0;
+    int i;
+
+    for(i = 0; i < len; i = i + 1)
+    {
+        if(i < mid)
+        {
+            left_arr[i] = arr[i];
+        }
+        else
+        {
+            right_arr[k] = arr[i];
+            k = k + 1;
+        }
+    }
+}
+
+
+def bubble_sort() 
+{  
+    int array;
+    array = new int[4];
+    array[0] = 1; 
+    array[1] = 2;
+    array[2] = 4;
+    array[3] = 3;
+    array[4] = 8;
+
+    int n;
+    n = 4;  
+    int temp; 
+    temp = 0; 
+    int i; 
+    int j;
+
+    for(i = 0; i < n; i = i + 1)
+    {  
+        for(j = 1; j < (n-i); j = j + 1)
+        {  
+            if(arr[j-1] > arr[j])
+            {  
+            
+                temp = arr[j-1];  
+                arr[j-1] = arr[j];  
+                arr[j] = temp;  
+            }  
+                    
+        }  
+    }
+}  
+
+
+def sort_from_partition(int array, int low, int high) 
+{ 
+    array = new int[4];
+    array[0] = 1; 
+    array[1] = 2;
+    array[2] = 4;
+    array[3] = 3;
+    array[4] = 8;
+
+    if (low < high) 
+    { 
+       
+        int pi;
+        int piPlus;
+        piPlus = pi + 1;
+        int piLess;
+        piLess = pi - 1;
+
+        pi = partition(array, low, high);
+        
+        int recursiveSort1; 
+        recursiveSort1 = sort(array, low, piLess); 
+        int recursiveSort2;
+        recursiveSort2 = sort(array, piPlus, high); 
+    } 
+} 
+

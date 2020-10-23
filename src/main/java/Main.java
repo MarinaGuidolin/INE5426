@@ -1,3 +1,5 @@
+import static java.lang.System.out;
+
 import java.io.IOException;
 import java.util.HashSet;
 
@@ -20,44 +22,38 @@ public class Main {
 				throw new Error("Invalid file extension. It should be a .ccc file!");
 			}
 
-			System.out.println("Starting Lexical Analysis");
+			out.println("Starting Lexical Analysis");
 
 			// Read the file, and start the lexer and parser.
 			CharStream charStream = CharStreams.fromFileName(filePath);
 			ConvCC20201Lexer lexer = new ConvCC20201Lexer(charStream);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			ConvCC20201Parser parser = new ConvCC20201Parser(tokens);
-			Utils utils = new Utils();
-
-			
 			// Start the parser on the 'program' which is the initial grammar producer.
-			
+
 			parser.program();
 
 			// Creating the symbol table with the tokens.
 			HashSet<String> lexemeSet = Utils.createLexemeSet(tokens);
 			int totalErrors = parser.getNumberOfSyntaxErrors();
-			
-			System.out.println(
-					"Lexical analysis finished with: " + totalErrors + (totalErrors == 1 ? " error." : " errors."));
-			
-			utils.ruleError(parser, totalErrors);
+
+			out.println("Lexical analysis finished with: " + totalErrors + (totalErrors == 1 ? " error." : " errors."));
 
 			Utils.exportTokens(filePath, tokens, lexemeSet);
 			Utils.exportSymbolTable(filePath, lexemeSet);
 
 			if (totalErrors == 0) {
-				System.out.println("Well done!");
+				out.println("Well done!");
 			}
 
 		} catch (IOException e) {
-			System.out.println("Invalid file");
+			out.println("Invalid file");
 			e.printStackTrace();
 		} catch (RecognitionException e) {
-			System.out.println("Error while parsing the file " + e.getLocalizedMessage());
+			out.println("Error while parsing the file " + e.getLocalizedMessage());
 			e.printStackTrace();
 		} catch (Error e) {
-			System.out.println(e.getMessage());
+			out.println(e.getMessage());
 		}
 	}
 }

@@ -116,10 +116,10 @@ returnstat:
 
 ifstat:
 
-	IF (expression) LBRACE statelist RBRACE ifstat2
+	IF LPAREN expression RPAREN LBRACE statelist RBRACE ifstat1
 ;
 
-ifstat2:
+ifstat1:
 
 	(ELSE statement 
 	)?
