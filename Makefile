@@ -28,16 +28,16 @@ install:
 	sudo apt-get install maven
 	
 clean:
-	mvn clean
+	mvn clean  -q
 
 compile:
-	mvn compile
+	mvn compile  -q
 
 package:
-	mvn package
+	mvn package  -q 
 
 exec:
-	mvn exec:java -Dexec.args=$($(exemplo))
+	mvn exec:java -Dexec.args=$($(exemplo)) -q
 
 
 
