@@ -269,8 +269,6 @@ LBRACK : '[';
 RBRACK : ']';
 SEMI : ';';
 COMMA : ',';
-DOT : '.';
-COLON : ':';
 
 /*
  * Arithmetic Operators
