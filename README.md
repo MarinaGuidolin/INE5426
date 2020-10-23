@@ -21,4 +21,5 @@
 - arrays
 - matrix
 - factorial
+- sort
 
