@@ -1,12 +1,12 @@
 import static java.lang.System.out;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.gui.TreeViewer;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
@@ -22,7 +22,7 @@ public class Main {
 				throw new Error("Invalid file extension. It should be a .ccc file!");
 			}
 
-			out.println("Starting Lexical Analysis");
+			out.println("\n===> Starting Lexical Analysis");
 
 			// Read the file, and start the lexer and parser.
 			CharStream charStream = CharStreams.fromFileName(filePath);
@@ -31,16 +31,21 @@ public class Main {
 			ConvCC20201Parser parser = new ConvCC20201Parser(tokens);
 			// Start the parser on the 'program' which is the initial grammar producer.
 
-			parser.program();
+			out.println("===> Starting Syntactic Analysis");
+			ParseTree tree = parser.program();
 
 			// Creating the symbol table with the tokens.
 			HashSet<String> lexemeSet = Utils.createLexemeSet(tokens);
 			int totalErrors = parser.getNumberOfSyntaxErrors();
 
-			out.println("Lexical analysis finished with: " + totalErrors + (totalErrors == 1 ? " error." : " errors."));
+			out.println("===> Syntactic analysis finished with: " + totalErrors + (totalErrors == 1 ? " error." : " errors."));
 
 			Utils.exportTokens(filePath, tokens, lexemeSet);
 			Utils.exportSymbolTable(filePath, lexemeSet);
+
+			TreeViewer viewer = new TreeViewer(Arrays.asList(
+					parser.getRuleNames()),tree);
+			viewer.open();
 
 			if (totalErrors == 0) {
 				out.println("Well done!");
