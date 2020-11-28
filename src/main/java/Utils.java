@@ -3,9 +3,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
+
+import ExpressionTree.ExpressionTree;
 
 public class Utils {
 
@@ -97,13 +100,39 @@ public class Utils {
 			writer.write(token);
 		}
 
-		System.out.println("Os tokens do arquivo " + fileName + ".ccc se encontram no arquivo: " + newFilePath);
+		Log.info("INFO", "The tokens of the " + fileName + ".ccc file can be found in the " + newFilePath + " file");
 
 		writer.close();
 	}
 
 	/**
-	 * Export a symbol table from the input program into a txt file located on "/Out/SymbolTable/" dir.
+	 * Write the expression trees into a txt file located on "/Out/ExpressionTrees/" dir.
+	 * @param trees the list of expression trees to be exported
+	 */
+	static public void exportExpressionTrees(List<ExpressionTree> trees) {
+		String newFileName = "ExpTrees.txt";
+		String directoryPath = "";
+		try {
+			directoryPath = createDirectory("/Out/ExpressionTrees/", ".");
+			String newFilePath = directoryPath + newFileName;
+			File newFile = new File(newFilePath);
+			FileWriter writer = new FileWriter(newFile);
+			for (ExpressionTree t : trees) {
+				String s = t.getRoot().toString();
+				writer.write(s + "\n");
+			}
+
+			Log.info("INFO", "The expression trees can be found in the " + newFilePath + " file");
+
+			writer.close();
+		} catch (IOException e) {
+			Log.error("ERROR", "Invalid file");
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Export a symbol table from the input program into a txt file located on "/Out/SymbolTable.SymbolTable/" dir.
 	 * @param filePath the file path of the input program
 	 * @param lexemeSet the set of lexemes of the file
 	 * @throws IOException
@@ -112,20 +141,19 @@ public class Utils {
 			throws IOException {
 		String fileName = extractFileName(filePath);
 		String newFileName = fileName + ".txt";
-		String directoryPath = createDirectory("/Out/SymbolTable/", filePath);
+		String directoryPath = createDirectory("/Out/SymbolTable.SymbolTable/", filePath);
 		String newFilePath = directoryPath + newFileName;
 		File newFile = new File(newFilePath);
 		FileWriter writer = new FileWriter(newFile);
 
-		writer.write("============> Symbol Table from the file " + fileName + ".ccc\n\n");
+		writer.write("============> Symbol Table of the file " + fileName + ".ccc\n\n");
 
 		for (String lexeme : lexemeSet) {
 			String s = String.format("Entry: <key=%s, %s>\n", lexeme, "lexeme = " + lexeme);
 			writer.write(s);
 		}
 
-		System.out
-				.println("A tabela de símbolos do arquivo " + fileName + ".ccc se encontra no arquivo: " + newFilePath);
+		Log.info("INFO", "The symbol table of the " + fileName + ".ccc file can be found in the " + newFilePath + " file");
 
 		writer.close();
 	}

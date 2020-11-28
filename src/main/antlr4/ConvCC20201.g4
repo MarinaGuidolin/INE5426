@@ -1,9 +1,27 @@
 grammar ConvCC20201;
 
-program:
+@header {
+import ExpressionTree.ExpressionTree;
+import ExpressionTree.Node;
+}
 
+@parser::members {
+
+    List<ExpressionTree> trees = new ArrayList<ExpressionTree>();
+
+    void addTree(Node node) {
+        ExpressionTree expTree = new ExpressionTree(node);
+        trees.add(expTree);
+    }
+}
+
+program
+@after {
+    Utils.exportExpressionTrees(trees);
+}
+:
  	(statement 
-	| funclist)? 
+	| funclist)?
 ;
 
 funclist: 
@@ -22,23 +40,23 @@ funcdef:
 
 paramlist:
 
-	(TYPE_INT IDENT paramlist2 
+	TYPE_INT IDENT paramlist2
 	| TYPE_FLOAT IDENT paramlist2
 	| TYPE_STRING IDENT paramlist2 
-	)?
+	|
 ;
 
 paramlist2:
 
-	( COMMA paramlist 
-	)?
+	COMMA paramlist
+	|
 
 ;
 
 statement:
 
 	vardecl SEMI 
-	| atribstat SEMI 
+	| atribstat1 SEMI
 	| printstat SEMI
 	| readstat SEMI 
 	| returnstat SEMI
@@ -56,47 +74,23 @@ vardecl:
 ;
 
 a:
-	(t1 a 
-	)?
+	t1 a
+	|
 ; 
 
 t1: 
 	LBRACK INT RBRACK;
 
-atribstat:
-	
-	lvalue ASSIGN atribstat1 
-;
-
-atribstat1:
-
-	IDENT  atribstat2
-	| allocexpression 
-	| ADD factor 
-	| SUB factor 
-	| INT
-  	| FLOAT
-  	| STRING
-	| NULL
-	| LPAREN numexpression RPAREN
-;
-
- atribstat2: 
-
-	b d c expression2 
-	|   LPAREN paramlistcall RPAREN
-;
-
 paramlistcall:
 
-	(IDENT paramlistcall2
-	)?
+	IDENT paramlistcall2
+	|
 ;
 
 paramlistcall2:
 
-	(COMMA paramlistcall 
-	)?
+	COMMA paramlistcall
+	|
 ; 
 
 printstat:
@@ -106,7 +100,7 @@ printstat:
 
 readstat:
 
-	READ lvalue
+	READ lvalue[' ']
 ;
 
 returnstat:
@@ -121,13 +115,13 @@ ifstat:
 
 ifstat1:
 
-	(ELSE statement 
-	)?
+	ELSE statement
+	|
 ;
 
 forstat:
 
-	FOR LPAREN atribstat SEMI expression SEMI atribstat RPAREN statement
+	FOR LPAREN atribstat1 SEMI expression SEMI atribstat1 RPAREN statement
 ;
 
 statelist: 
@@ -137,8 +131,8 @@ statelist:
 
 statelist2:
 
-	(statelist 
-	)?
+	statelist
+	|
 ;	
 
 allocexpression:
@@ -148,84 +142,119 @@ allocexpression:
 
 allocexpression1:
 
-	TYPE_INT t2 b 
-	| TYPE_FLOAT t2 b 
-	| TYPE_STRING t2 b
+	TYPE_INT t2 b[null]
+	| TYPE_FLOAT t2 b[null]
+	| TYPE_STRING t2 b[null]
 ;
 
-b:
-	(t2 b 
-	)?
+atribstat1:
+
+	lvalue[' '] ASSIGN atribstat2
 ;
 
-t2:
-	LBRACK numexpression RBRACK
+
+atribstat2:
+
+	IDENT atribstat3[new Node($IDENT.text)]
+	| allocexpression
+	| ADD factor['+'] d[$factor.sin] c[$d.sin] expression2 {addTree($c.sin); }
+	| SUB factor['-'] d[$factor.sin] c[$d.sin] expression2 {addTree($c.sin); }
+	| INT d[new Node($INT.text)] c[$d.sin] expression2 {addTree($c.sin); }
+  	| FLOAT d[new Node($FLOAT.text)] c[$d.sin] expression2 {addTree($c.sin);}
+  	| STRING d[new Node($STRING.text)] c[$d.sin] expression2 {addTree($c.sin);}
+	| NULL d[null] c[null] expression2
+	| LPAREN numexpression RPAREN d[$numexpression.sin] c[$d.sin] expression2 {addTree($c.sin);}
 ;
 
-expression:
+ atribstat3[Node h]
+ :
+	b[h] d[$b.sin] c[$d.sin] expression2 {addTree($c.sin);}
+	|   LPAREN paramlistcall RPAREN
+;
+
+b[Node h] returns [Node sin]
+:
+	t2 b[h] {$sin = new Node("array", $t2.sin, $b.sin);}
+	| {$sin = h;}
+;
+
+t2 returns[Node sin]
+:
+	LBRACK numexpression RBRACK {$sin = $numexpression.sin;}
+;
+
+expression
+:
 
 	numexpression expression2
 ; 
 
 expression2:
 
-	(GT numexpression 
-	| LT numexpression 
-	| LE numexpression 
-	| GE numexpression 
-	| EQUAL numexpression 
-	| NOTEQUAL numexpression 
-	)?
+	GT numexpression
+	| LT numexpression
+	| LE numexpression
+	| GE numexpression
+	| EQUAL numexpression
+	| NOTEQUAL numexpression
+	|
 ; 
 
-numexpression:
-
-	term c
+numexpression returns [Node sin]
+:
+	term c[$term.sin] {$sin = $c.sin;} {addTree($sin);}
 ;
 
-c:
-	(t3 c 
-	)?
+c[Node h] returns [Node sin]
+:
+	t3[h] c[$t3.sin] {$sin = $c.sin;}
+	| {$sin = h;}
 ;
 
-t3: 
-	ADD term 
-	| SUB term
+t3[Node h] returns [Node sin]
+:
+	ADD term {$sin = new Node($ADD.text, h, $term.sin);}
+	| SUB term {$sin = new Node($SUB.text, h, $term.sin);}
 ;
 
-term:
-	 unaryexpr d
+term returns [Node sin]
+:
+	 unaryexpr d[$unaryexpr.sin] {$sin = $d.sin;}
 ;
 
-d: 
-	(t4 d
-	)?
+d[Node h] returns [Node sin]
+:
+	t4[h] d[$t4.sin] {$sin = $d.sin;}
+	| {$sin = h;}
 ;
 
-t4: 
-	MUL unaryexpr 
-	| DIV unaryexpr
-	| MOD unaryexpr
+t4[Node h] returns [Node sin]
+:
+	MUL unaryexpr {$sin = new Node($MUL.text, h, $unaryexpr.sin);}
+	| DIV unaryexpr {$sin = new Node($DIV.text, h, $unaryexpr.sin);}
+	| MOD unaryexpr {$sin = new Node($MOD.text, h, $unaryexpr.sin);}
 ;
 
-unaryexpr:
-
-	ADD factor 
-	| SUB factor 
-	| factor
+unaryexpr returns [Node sin]
+:
+	ADD factor[' '] {$sin = $factor.sin;}
+	| SUB factor[' ']
+	| factor[' '] {$sin = $factor.sin;}
 ;
 
-factor:
-	INT
-	| FLOAT
-	| STRING
+factor[char h] returns [Node sin]
+:
+	INT {$sin = new Node(h + $INT.text);}
+	| FLOAT {$sin = new Node(h + $FLOAT.text);}
+	| STRING {$sin = new Node($STRING.text);}
 	| NULL
-	| lvalue 
-	| LPAREN numexpression RPAREN
+	| lvalue[h] {$sin = $lvalue.node;}
+	| LPAREN numexpression RPAREN {$sin = $numexpression.sin;}
 ;
 
-lvalue:
-	 IDENT b
+lvalue[char h] returns [Node node]
+:
+	 IDENT b[new Node(h + $IDENT.text)] {$node = $b.sin;}
 ;
 
 /*
