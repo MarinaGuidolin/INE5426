@@ -1,8 +1,10 @@
+
 def func1(int A, int B)
 {
   int SM[2];
-  SM[0] = A + B;
-  SM[1] = B * C;
+  y = new int[10];
+  SM[0+0] = -A[1+4] + B;
+  SM[1+0] = -B[0+0] * C;
   return;
 }
 
@@ -12,6 +14,6 @@ def principal()
   int D;
   int R;
   C = 4;
-  D = 5;
+  D = -5 * -4 + -100;
   return;
 }

@@ -1,26 +1,64 @@
 grammar ConvCC20201;
 
 @header {
-import ExpressionTree.ExpressionTree;
-import ExpressionTree.Node;
+import ExpressionTree.*;
+import Scope.*;
+import SymbolTable.*;
+import Enum.*;
+import static java.lang.System.exit;
 }
 
 @parser::members {
 
     List<ExpressionTree> trees = new ArrayList<ExpressionTree>();
 
+    List<ScopeNode> scopes = new ArrayList<ScopeNode>();
+
+    LinkedStack scopeStack = new LinkedStack();
+
     void addTree(Node node) {
         ExpressionTree expTree = new ExpressionTree(node);
         trees.add(expTree);
+    }
+
+    void insertIdent(String lexeme, boolean isFunction, String type, int declarationLine) {
+        ScopeNode actualScope = scopeStack.peek();
+        SemanticReports report = actualScope.getSymbolTable().insert(lexeme, isFunction, type, declarationLine);
+        if (report == SemanticReports.IDENT_ALREADY_EXISTS) {
+            int previousDeclarationLine = actualScope.getSymbolTable().getEntry(lexeme).getDeclarationLine();
+            String msg = "The variable " + lexeme + " has been declared previously at line " + previousDeclarationLine;
+            notifyErrorListeners(msg);
+            throw new ParseCancellationException("\nline " + declarationLine + ": " + msg);
+        }
+    }
+
+    void putScope(boolean isFor) {
+        scopeStack.push(new SymbolTable(), isFor);
+    }
+
+    void popScope() {
+        scopes.add(scopeStack.pop());
+    }
+
+    void verifyBreak(int line) {
+        ScopeNode actualScope = scopeStack.peek();
+        if (!actualScope.isFor()) {
+            String msg = "A break command was written outside a for statement";
+            notifyErrorListeners(msg);
+            throw new ParseCancellationException("\nline " + line + ": " + msg);
+        }
     }
 }
 
 program
 @after {
     Utils.exportExpressionTrees(trees);
+    Log.success("SUCESS", "Well done! All arithmetic expressions are valid");
+    Log.success("SUCESS", "Well done! All declared variables are valid");
+    Log.success("SUCESS", "Well done! All break commands are contained within a for statement");
 }
 :
- 	(statement 
+ 	(statement[false]
 	| funclist)?
 ;
 
@@ -35,14 +73,14 @@ funclist2:
 ;
 
 funcdef:
-	 DEF IDENT LPAREN paramlist RPAREN LBRACE statelist RBRACE
+	 DEF IDENT {insertIdent($IDENT.text, true, "function", $IDENT.line);} LPAREN {putScope(false);} paramlist RPAREN LBRACE statelist[false] RBRACE {popScope();}
 ;
 
 paramlist:
 
-	TYPE_INT IDENT paramlist2
-	| TYPE_FLOAT IDENT paramlist2
-	| TYPE_STRING IDENT paramlist2 
+	TYPE_INT IDENT paramlist2 {insertIdent($IDENT.text, false, $TYPE_INT.text, $IDENT.line);}
+	| TYPE_FLOAT IDENT paramlist2 {insertIdent($IDENT.text, false, $TYPE_FLOAT.text, $IDENT.line);}
+	| TYPE_STRING IDENT paramlist2 {insertIdent($IDENT.text, false, $TYPE_STRING.text, $IDENT.line);}
 	|
 ;
 
@@ -53,7 +91,7 @@ paramlist2:
 
 ;
 
-statement:
+statement[boolean isFor]:
 
 	vardecl SEMI 
 	| atribstat1 SEMI
@@ -62,15 +100,16 @@ statement:
 	| returnstat SEMI
 	| ifstat 
 	| forstat 
-	| LBRACE statelist RBRACE 
-	| BREAK SEMI | SEMI
+	| LBRACE {putScope(isFor);} statelist[isFor] RBRACE {popScope();}
+	| BREAK SEMI {verifyBreak($BREAK.line);}
+	| SEMI
 ;
 
 vardecl:
 
-	TYPE_INT IDENT a 
-	| TYPE_FLOAT IDENT a 
-	| TYPE_STRING IDENT a
+	TYPE_INT IDENT a {insertIdent($IDENT.text, false, $TYPE_INT.text, $IDENT.line);}
+	| TYPE_FLOAT IDENT a {insertIdent($IDENT.text, false, $TYPE_FLOAT.text, $IDENT.line);}
+	| TYPE_STRING IDENT a {insertIdent($IDENT.text, false, $TYPE_STRING.text, $IDENT.line);}
 ;
 
 a:
@@ -110,28 +149,28 @@ returnstat:
 
 ifstat:
 
-	IF LPAREN expression RPAREN LBRACE statelist RBRACE ifstat1
+	IF LPAREN expression RPAREN LBRACE {putScope(false);} statelist[false] RBRACE {popScope();} ifstat1
 ;
 
 ifstat1:
 
-	ELSE statement
+	ELSE statement[false]
 	|
 ;
 
 forstat:
 
-	FOR LPAREN atribstat1 SEMI expression SEMI atribstat1 RPAREN statement
+	FOR LPAREN atribstat1 SEMI expression SEMI atribstat1 RPAREN statement[true]
 ;
 
-statelist: 
+statelist[boolean isFor]:
 
-	statement statelist2
+	statement[isFor] statelist2[isFor]
 ;
 
-statelist2:
+statelist2[boolean isFor]:
 
-	statelist
+	statelist[isFor]
 	|
 ;	
 

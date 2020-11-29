@@ -17,7 +17,7 @@ def multiply(int matrixA, int matrixB, int linesA, int columnsA, int columnsB)
 	int k;
 	int matrixC;
 	
-	matrixC = new int[linesA][columnsB];
+	matrixC = new int[linesA+10][columnsB-10];
 	
 	for (i = 0; i < linesA; i = i + 1) {
 		for (j = 0; j < columnsB; j = j + 1) {
