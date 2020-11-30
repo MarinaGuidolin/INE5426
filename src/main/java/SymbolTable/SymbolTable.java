@@ -27,12 +27,10 @@ public class SymbolTable {
 
 	public SymbolTableEntry getEntry(String lexeme) {
 		//		FIRST, VERIFY IF THE LEXEME EXISTS
-		boolean contains = symbolTable.containsKey(lexeme);
-		if (contains) {
+		if (symbolTable.containsKey(lexeme)) {
 			return symbolTable.get(lexeme);
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	@Override public String toString() {

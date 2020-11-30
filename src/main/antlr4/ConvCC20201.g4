@@ -9,7 +9,6 @@ import static java.lang.System.exit;
 }
 
 @parser::members {
-
     List<ExpressionTree> trees = new ArrayList<ExpressionTree>();
 
     List<ScopeNode> scopes = new ArrayList<ScopeNode>();
@@ -18,6 +17,13 @@ import static java.lang.System.exit;
 
     void addTree(Node node) {
         ExpressionTree expTree = new ExpressionTree(node);
+        Node root = expTree.getRoot();
+        String result = expTree.postOrder(root);
+        if (result.equals("")) {
+            String msg = "The tree below contains invalid expressions\n" + expTree.getRoot().toString();
+            notifyErrorListeners("Invalid expression detected");
+            throw new ParseCancellationException('\n' + msg);
+        }
         trees.add(expTree);
     }
 
@@ -28,7 +34,7 @@ import static java.lang.System.exit;
             int previousDeclarationLine = actualScope.getSymbolTable().getEntry(lexeme).getDeclarationLine();
             String msg = "The variable " + lexeme + " has been declared previously at line " + previousDeclarationLine;
             notifyErrorListeners(msg);
-            throw new ParseCancellationException("\nline " + declarationLine + ": " + msg);
+            throw new ParseCancellationException('\n' + msg);
         }
     }
 
@@ -45,14 +51,31 @@ import static java.lang.System.exit;
         if (!actualScope.isFor()) {
             String msg = "A break command was written outside a for statement";
             notifyErrorListeners(msg);
-            throw new ParseCancellationException("\nline " + line + ": " + msg);
+            throw new ParseCancellationException('\n' + msg);
         }
+    }
+
+    String getTypeOfIdent(String lexeme) {
+        ScopeNode previous = scopeStack.peek();
+        while (previous != null) {
+             SymbolTableEntry entry = previous.getSymbolTable().getEntry(lexeme);
+             if (entry != null) {
+                return entry.getType();
+             }
+             previous = previous.getPrevious();
+        }
+        String msg = "The identifier " + lexeme + " was used but not defined";
+        notifyErrorListeners(msg);
+        throw new ParseCancellationException('\n' + msg);
     }
 }
 
 program
 @after {
     Utils.exportExpressionTrees(trees);
+    //for (ScopeNode n: scopes) {
+        //System.out.println(n.toString());
+    //}
     Log.success("SUCESS", "Well done! All arithmetic expressions are valid");
     Log.success("SUCESS", "Well done! All declared variables are valid");
     Log.success("SUCESS", "Well done! All break commands are contained within a for statement");
@@ -73,7 +96,7 @@ funclist2:
 ;
 
 funcdef:
-	 DEF IDENT {insertIdent($IDENT.text, true, "function", $IDENT.line);} LPAREN {putScope(false);} paramlist RPAREN LBRACE statelist[false] RBRACE {popScope();}
+	 DEF {putScope(false);} IDENT {insertIdent($IDENT.text, true, "function", $IDENT.line);} LPAREN paramlist RPAREN LBRACE statelist[false] RBRACE {popScope();}
 ;
 
 paramlist:
@@ -98,10 +121,10 @@ statement[boolean isFor]:
 	| printstat SEMI
 	| readstat SEMI 
 	| returnstat SEMI
-	| ifstat 
+	| ifstat[isFor]
 	| forstat 
 	| LBRACE {putScope(isFor);} statelist[isFor] RBRACE {popScope();}
-	| BREAK SEMI {verifyBreak($BREAK.line);}
+	| BREAK {verifyBreak($BREAK.line);} SEMI
 	| SEMI
 ;
 
@@ -147,14 +170,14 @@ returnstat:
 	RETURN
 ;
 
-ifstat:
+ifstat[boolean isFor]:
 
-	IF LPAREN expression RPAREN LBRACE {putScope(false);} statelist[false] RBRACE {popScope();} ifstat1
+	IF LPAREN expression RPAREN LBRACE {putScope(isFor);} statelist[isFor] RBRACE {popScope();} ifstat1[isFor]
 ;
 
-ifstat1:
+ifstat1[boolean isFor]:
 
-	ELSE statement[false]
+	ELSE statement[isFor]
 	|
 ;
 
@@ -194,13 +217,13 @@ atribstat1:
 
 atribstat2:
 
-	IDENT atribstat3[new Node($IDENT.text)]
+	IDENT atribstat3[new Node($IDENT.text, getTypeOfIdent($IDENT.text))]
 	| allocexpression
 	| ADD factor['+'] d[$factor.sin] c[$d.sin] expression2 {addTree($c.sin); }
 	| SUB factor['-'] d[$factor.sin] c[$d.sin] expression2 {addTree($c.sin); }
-	| INT d[new Node($INT.text)] c[$d.sin] expression2 {addTree($c.sin); }
-  	| FLOAT d[new Node($FLOAT.text)] c[$d.sin] expression2 {addTree($c.sin);}
-  	| STRING d[new Node($STRING.text)] c[$d.sin] expression2 {addTree($c.sin);}
+	| INT d[new Node($INT.text, "int")] c[$d.sin] expression2 {addTree($c.sin); }
+  	| FLOAT d[new Node($FLOAT.text, "float")] c[$d.sin] expression2 {addTree($c.sin);}
+  	| STRING d[new Node($STRING.text, "string")] c[$d.sin] expression2 {addTree($c.sin);}
 	| NULL d[null] c[null] expression2
 	| LPAREN numexpression RPAREN d[$numexpression.sin] c[$d.sin] expression2 {addTree($c.sin);}
 ;
@@ -276,16 +299,16 @@ t4[Node h] returns [Node sin]
 
 unaryexpr returns [Node sin]
 :
-	ADD factor[' '] {$sin = $factor.sin;}
-	| SUB factor[' ']
+	ADD factor['+'] {$sin = $factor.sin;}
+	| SUB factor['-'] {$sin = $factor.sin;}
 	| factor[' '] {$sin = $factor.sin;}
 ;
 
 factor[char h] returns [Node sin]
 :
-	INT {$sin = new Node(h + $INT.text);}
-	| FLOAT {$sin = new Node(h + $FLOAT.text);}
-	| STRING {$sin = new Node($STRING.text);}
+	INT {$sin = new Node(h + $INT.text, "int");}
+	| FLOAT {$sin = new Node(h + $FLOAT.text, "float");}
+	| STRING {$sin = new Node($STRING.text, "string");}
 	| NULL
 	| lvalue[h] {$sin = $lvalue.node;}
 	| LPAREN numexpression RPAREN {$sin = $numexpression.sin;}
@@ -293,7 +316,7 @@ factor[char h] returns [Node sin]
 
 lvalue[char h] returns [Node node]
 :
-	 IDENT b[new Node(h + $IDENT.text)] {$node = $b.sin;}
+	 IDENT b[new Node(h + $IDENT.text, getTypeOfIdent($IDENT.text))] {$node = $b.sin;}
 ;
 
 /*
