@@ -81,8 +81,9 @@ program
     Log.success("SUCESS", "Well done! All break commands are contained within a for statement");
 }
 :
- 	(statement[false]
+ 	{putScope(false);} (statement[false]
 	| funclist)?
+	{popScope();}
 ;
 
 funclist: 
@@ -96,7 +97,7 @@ funclist2:
 ;
 
 funcdef:
-	 DEF {putScope(false);} IDENT {insertIdent($IDENT.text, true, "function", $IDENT.line);} LPAREN paramlist RPAREN LBRACE statelist[false] RBRACE {popScope();}
+	 DEF IDENT {insertIdent($IDENT.text, true, "function", $IDENT.line);} LPAREN {putScope(false);} paramlist RPAREN LBRACE statelist[false] RBRACE {popScope();}
 ;
 
 paramlist:

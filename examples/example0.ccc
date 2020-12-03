@@ -4,14 +4,20 @@
   float z;
   int i;
   int max;
+  int number;
+  float number2;
+  number = number + number2;
+  number = number2 * number;
+  number = number2 / number;
+  number = number2 % number;
+  number = number2 - number;
+  x = 0;
+
   string s;
   string s2;
   s = s + s2;
-  s = s2 * s;
-  s = s2 / s;
-  s = s2 % s;
-  s = s2 - s;
-  x = 0;
+  s2 = s2 - s;
+
   max = 10000;
   if (x) {
     x = x + 1;
