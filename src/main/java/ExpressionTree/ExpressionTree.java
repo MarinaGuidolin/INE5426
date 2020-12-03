@@ -1,31 +1,62 @@
 package ExpressionTree;
 
+import java.util.ArrayList;
+
+import GCI.*;
+
 public class ExpressionTree {
 	private Node root;
 
-	public ExpressionTree(Node node) {
+	private int counter;
+
+	public ExpressionTree(Node node, int counter) {
 		this.root = node;
+		this.counter = counter;
 	}
 
 	public ExpressionTree() {
 		this.root = null;
+		this.counter = 0;
 	}
 
 	public Node getRoot() {
 		return root;
 	}
 
-	public String postOrder(Node node) {
+	public int getCounter() {
+		return counter;
+	}
+
+	public String validateTree(Node node) {
 		if (node.getValue().equals("array")) {
 			return node.getType();
 		} else {
 			if (node.getRight() == null && node.getLeft() == null) {
 				return node.getType();
 			}
-			String left = postOrder(node.getLeft());
-			String right = postOrder(node.getRight());
+			String left = validateTree(node.getLeft());
+			String right = validateTree(node.getRight());
 			String operator = node.getValue();
 			return validateExpressions(left, right, operator);
+		}
+	}
+
+	public String generateCode(Node node, StringBuilder sb) {
+		if (node.getRight() == null && node.getLeft() == null) {
+			return node.getValue();
+		} else {
+			String left = generateCode(node.getLeft(), sb);
+			String right = generateCode(node.getRight(), sb);
+			String temp = "t" + counter;
+			String code = "";
+			if (node.getValue() == "array") {
+				code = Generator.generateIndexedCopyCode(temp, right, left, false);
+			} else {
+				code = Generator.generateThreeAddressCode(temp, left, right, node.getValue());
+			}
+			sb.append(code);
+			counter++;
+			return temp;
 		}
 	}
 

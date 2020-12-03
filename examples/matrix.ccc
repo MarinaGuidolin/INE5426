@@ -1,11 +1,12 @@
-def print_matrix(int matrix, int lines, int columns) 
+
+def print_matrix(int matrix, int lines, int columns)
 {
 	int i;
 	int j;
 	
 	for (i = 0; i < lines; i = i + 1) {
 		for (j = 0; j < columns; j = j + 1) {
-			print "matrix[" + i + "][" + j + "] = " + matrix[i][j];
+			print matrix[i][j];
 		}
 	}
 }
@@ -33,7 +34,7 @@ def multiply(int matrixA, int matrixB, int linesA, int columnsA, int columnsB)
 			}
 		}
 	}
-	
+
 	int result;
 	result = print_matrix(matrixC, linesA, columnsB);
 }
