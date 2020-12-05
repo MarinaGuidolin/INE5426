@@ -19,7 +19,7 @@ import static java.lang.System.exit;
 
     LinkedStack scopeStack = new LinkedStack();
 
-    int temporaryCounter, labelCounter = 0;
+    int temporaryCounter, labelCounter, funcCounter, beginCounter, exprTrueCounter, exprFalseCounter = 0;
 
     ExpressionTree addTree(Node node) {
 
@@ -36,9 +36,35 @@ import static java.lang.System.exit;
         return expTree;
     }
 
-    String createLabel() {
-        String s = "L" + labelCounter;
-        labelCounter++;
+    String createLabel(String type) {
+        String s = "";
+        switch (type) {
+            case "label": {
+                s = "L_" + labelCounter;
+                labelCounter++;
+                break;
+            }
+            case "func": {
+                s = "F_" + funcCounter;
+                funcCounter++;
+                break;
+            }
+            case "begin": {
+                s = "BEGIN_" + beginCounter;
+                beginCounter++;
+                break;
+            }
+            case "exprTrue": {
+                s = "EXPR_TRUE_" + exprTrueCounter;
+                exprTrueCounter++;
+                break;
+            }
+            case "exprFalse": {
+                s = "EXPR_FALSE_" + exprFalseCounter;
+                exprFalseCounter++;
+                break;
+            }
+        }
         return s;
     }
 
@@ -97,32 +123,83 @@ program
     returns [String code]
 @init {
     {putScope(false);}
+    $code = "";
 }
 @after {
     Utils.exportExpressionTrees(trees);
-    System.out.println($code);
+    System.out.println("[PROGRAM] code: \n" + $code);
     Log.success("SUCESS", "Well done! All arithmetic expressions are valid");
     Log.success("SUCESS", "Well done! All declared variables are valid");
     Log.success("SUCESS", "Well done! All break commands are contained within a for statement");
 }
 :
-	statement[false, createLabel()] {$code = $statement.code;}
+	statement[false, createLabel("label")]
+	{
+	    if (!$statement.code.isEmpty()) {
+	        $code = $statement.code ;
+	    }
+	}
 	| funclist
+    {
+        if (!$funclist.code.isEmpty()) {
+            $code = $funclist.code;
+        }
+    }
 	|
 ;
 
-funclist: 
+funclist
+    returns [String code]
+    @init {
+        $code = "";
+    }
+:
 
-	funcdef funclist2 
+	funcdef funclist2
+    {
+        if ($funcdef.code.isEmpty()) {
+	        $code = $funclist2.code;
+	    } else if ($funclist2.code.isEmpty()) {
+	        $code = $funcdef.code;
+	    } else {
+	        $code = $funcdef.code + "\n" +  $funclist2.code;
+	    }
+	}
 ;
 
-funclist2:  
+funclist2
+    returns [String code]
+    @init {
+        $code = "";
+    }
+:
 
-	funclist?
+	funclist
+	{
+        if (!$funclist.code.isEmpty()) {
+            $code = $funclist.code;
+        }
+    }
+
+	|
 ;
 
-funcdef:
-	 DEF IDENT {insertIdent($IDENT.text, true, "function", $IDENT.line);} {putScope(false);} LPAREN paramlist RPAREN LBRACE statelist[false, "funclabel"] RBRACE {popScope();}
+funcdef
+    returns [String code]
+    locals [String funcLabel, String next]
+    @init {
+        $code = "";
+        $funcLabel = createLabel("func");
+        $next = createLabel("label");
+        System.out.println("[FUNCDEF] next: " + $next);
+    }
+:
+	 DEF IDENT {insertIdent($IDENT.text, true, "function", $IDENT.line);} {putScope(false);} LPAREN paramlist RPAREN LBRACE statelist[false, $next] RBRACE {popScope();}
+     {
+        if (!$statelist.code.isEmpty()) {
+            $code = $funcLabel + ":\n" + $statelist.code;
+        }
+     }
 ;
 
 paramlist:
@@ -145,31 +222,54 @@ statement[boolean isFor, String next]
     @init {
         $code = "";
     }
-//    @after {
+    @after {
+//        System.out.println("[STMT] my code is empty? " + $code.isEmpty());
 //        System.out.println("[STMT] code: \n" + $code);
-//    }
+//        System.out.println("[STMT] next: \n" + $next);
+    }
 :
 
-	vardecl SEMI 
+	vardecl SEMI
 	| atribstat1 SEMI {$code = $atribstat1.code;}
 	| printstat SEMI
 	| readstat SEMI 
 	| returnstat SEMI
 	| ifstat[isFor, next] {$code = $ifstat.code;}
 	| forstat[next] {$code = $forstat.code;}
-	| LBRACE {putScope(isFor);} statelist[isFor, next] RBRACE {popScope();} {$code = $statelist.code;}
+	| LBRACE {putScope(isFor);} statelist[isFor, next] RBRACE {popScope();}
+	{
+        if (!$statelist.code.isEmpty()) {
+            $code = $statelist.code;
+        }
+	}
 	| BREAK {verifyBreak($BREAK.line);} SEMI
 	| SEMI
 ;
 
 statelist[boolean isFor, String next]
     returns [String code]
+    locals [String stmtNext]
     @init {
         $code = "";
+        $stmtNext = createLabel("label");
     }
+        @after {
+//          System.out.println("[STATELIST] my code is empty? " + $code.isEmpty());
+//          System.out.println("[STATELIST] code: \n" + $code);
+//            System.out.println("[STATELIST] next: \n" + $next);
+        }
 :
 
-	statement[isFor, createLabel()] statelist2[isFor, next] {$code = $statement.code + "\n" + next + ":\n" +  $statelist2.code;}
+	statement[isFor, $stmtNext] statelist2[isFor, next]
+	{
+	    if ($statement.code.isEmpty()) {
+	        $code = $stmtNext + ":\n" +  $statelist2.code;
+	    } else if ($statelist2.code.isEmpty()) {
+	        $code = $statement.code + '\n' + $stmtNext + ":\n" ;
+	    } else {
+	        $code = $statement.code + "\n" + $stmtNext + ":\n" +  $statelist2.code ;
+	    }
+	}
 ;
 
 statelist2[boolean isFor, String next]
@@ -177,9 +277,20 @@ statelist2[boolean isFor, String next]
     @init {
         $code = "";
     }
+    @after {
+//                System.out.println("[STATELIST2] my code is empty? " + $code.isEmpty());
+//                System.out.println("[STATELIST2] code: \n" + $code);
+//                System.out.println("[STATELIST2] next: \n" + $next);
+            }
 :
 
-	statelist[isFor, next] {$code = $statelist.code;}
+	statelist[isFor, next]
+	{
+//	    $code = $statelist.code;
+	    if (!$statelist.code.isEmpty()) {
+	        $code = $statelist.code;
+	    }
+	}
 	|
 ;
 
@@ -230,14 +341,17 @@ ifstat[boolean isFor, String next]
     locals [String exprTrue, String exprFalse]
     @init {
         $code = "";
-        $exprTrue = createLabel();
-        $exprFalse = createLabel();
+        $exprTrue = createLabel("exprTrue");
+        $exprFalse = createLabel("exprFalse");
     }
-//    @after {
-//        System.out.println("[IF] code:\n" + $code);
-//    }
+//@after {
+//            System.out.println("[IFSTAT] exprFalse: \n" + $exprFalse);
+//            System.out.println("[IFSTAT] exprTrue: \n" + $exprTrue);
+//            System.out.println("[IFSTAT] next: \n" + $next);
+//            System.out.println("[IFSTAT] code: \n" + $code);
+//        }
 :
-	IF LPAREN expression[next] RPAREN LBRACE {putScope(isFor);} statelist[isFor, next] RBRACE {popScope();} ifstat1[isFor, next]
+	IF LPAREN expression[$exprFalse] RPAREN LBRACE {putScope(isFor);} statelist[isFor, next] RBRACE {popScope();} ifstat1[isFor, next]
 	{$code = $expression.code
 	        + $exprTrue + ":\n"
 	        + $statelist.code
@@ -252,6 +366,10 @@ ifstat1[boolean isFor, String next]
     @init {
         $code = "";
     }
+//    @after {
+//                System.out.println("[IFSTAT1] code: \n" + $code);
+//                System.out.println("[IFSTAT1] next: \n" + $next);
+//            }
 :
 
 	ELSE statement[isFor, next] {$code = $statement.code;}
@@ -262,12 +380,15 @@ forstat[String next]
     returns [String code]
     locals[String begin, String exprTrue]
     @init {
-        $begin = createLabel();
-        $exprTrue = createLabel();
+        $begin = createLabel("begin");
+        $exprTrue = createLabel("exprTrue");
     }
-//    @after {
-//        System.out.println("[FOR] code: \n" + $code);
-//    }
+@after {
+//            System.out.println("[FORSTAT] next: \n" + $next);
+//            System.out.println("[FORSTAT] begin: \n" + $begin);
+//            System.out.println("[FORSTAT] exprTrue: \n" + $exprTrue);
+//            System.out.println("[FORSTAT] code: \n" + $code);
+        }
 :
 
 	FOR LPAREN atribstat1 SEMI expression[next] SEMI atribstat1 RPAREN statement[true, $begin]
@@ -297,8 +418,8 @@ atribstat1
         $code = "";
     }
 //    @after {
-//        System.out.println("[ATRIBSTAT1] code:\n" + $code);
-//    }
+//                System.out.println("[ATRIBSTAT1] code: \n" + $code);
+//            }
 :
 
 	lvalue[' '] ASSIGN atribstat2 {$code = $lvalue.code + $atribstat2.code + $lvalue.last + $ASSIGN.text + $atribstat2.last;}
@@ -421,6 +542,10 @@ expression[String exprFalse]
         @init {
             $code = "";
         }
+//    @after {
+//        System.out.println("[EXPR]: code = \n" + $code);
+//        System.out.println("[EXPR]: exprFalse = " + $exprFalse);
+//    }
 :
 
 	numexpression expression2 {$code = Generator.generateConditionalDeviationCode("False " + $numexpression.last + $expression2.code, exprFalse);}
@@ -457,8 +582,8 @@ numexpression
         GenerateReturn generateReturn = generateCode($expTree);
         $code = generateReturn.getCode();
         $last = generateReturn.getLast();
-        //System.out.println("[NUMEXPR] code: \n" + $code);
-        //System.out.println("[NUMEXPR] last: " + $last);
+//        System.out.println("[NUMEXPR] code: \n" + $code);
+//        System.out.println("[NUMEXPR] last: " + $last);
     }
 :
 	term c[$term.sin]
@@ -533,8 +658,8 @@ lvalue[char h]
         GenerateReturn generateReturn = generateCode(expTree);
         $code = generateReturn.getCode();
         $last = generateReturn.getLast();
-        //System.out.println("[LVALUE] code: \n" + $code);
-        //System.out.println("[LVALUE] last: \n" + $last);
+//        System.out.println("[LVALUE] code: \n" + $code);
+//        System.out.println("[LVALUE] last: \n" + $last);
     }
 :
 	 IDENT b[new Node(h + $IDENT.text, getTypeOfIdent($IDENT.text))] {$node = $b.sin;}

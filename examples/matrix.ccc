@@ -9,6 +9,8 @@ def print_matrix(int matrix, int lines, int columns)
 			print matrix[i][j];
 		}
 	}
+
+	i = 0 + 2;
 }
 
 def multiply(int matrixA, int matrixB, int linesA, int columnsA, int columnsB)
