@@ -120,7 +120,7 @@ import static java.lang.System.exit;
 }
 
 program
-    returns [String code]
+    locals [String code]
 @init {
     {putScope(false);}
     $code = "";
@@ -191,7 +191,6 @@ funcdef
         $code = "";
         $funcLabel = createLabel("func");
         $next = createLabel("label");
-        System.out.println("[FUNCDEF] next: " + $next);
     }
 :
 	 DEF IDENT {insertIdent($IDENT.text, true, "function", $IDENT.line);} {putScope(false);} LPAREN paramlist RPAREN LBRACE statelist[false, $next] RBRACE {popScope();}
@@ -222,11 +221,6 @@ statement[boolean isFor, String next]
     @init {
         $code = "";
     }
-    @after {
-//        System.out.println("[STMT] my code is empty? " + $code.isEmpty());
-//        System.out.println("[STMT] code: \n" + $code);
-//        System.out.println("[STMT] next: \n" + $next);
-    }
 :
 
 	vardecl SEMI
@@ -253,11 +247,6 @@ statelist[boolean isFor, String next]
         $code = "";
         $stmtNext = createLabel("label");
     }
-        @after {
-//          System.out.println("[STATELIST] my code is empty? " + $code.isEmpty());
-//          System.out.println("[STATELIST] code: \n" + $code);
-//            System.out.println("[STATELIST] next: \n" + $next);
-        }
 :
 
 	statement[isFor, $stmtNext] statelist2[isFor, next]
@@ -277,16 +266,10 @@ statelist2[boolean isFor, String next]
     @init {
         $code = "";
     }
-    @after {
-//                System.out.println("[STATELIST2] my code is empty? " + $code.isEmpty());
-//                System.out.println("[STATELIST2] code: \n" + $code);
-//                System.out.println("[STATELIST2] next: \n" + $next);
-            }
 :
 
 	statelist[isFor, next]
 	{
-//	    $code = $statelist.code;
 	    if (!$statelist.code.isEmpty()) {
 	        $code = $statelist.code;
 	    }
@@ -344,15 +327,10 @@ ifstat[boolean isFor, String next]
         $exprTrue = createLabel("exprTrue");
         $exprFalse = createLabel("exprFalse");
     }
-//@after {
-//            System.out.println("[IFSTAT] exprFalse: \n" + $exprFalse);
-//            System.out.println("[IFSTAT] exprTrue: \n" + $exprTrue);
-//            System.out.println("[IFSTAT] next: \n" + $next);
-//            System.out.println("[IFSTAT] code: \n" + $code);
-//        }
 :
 	IF LPAREN expression[$exprFalse] RPAREN LBRACE {putScope(isFor);} statelist[isFor, next] RBRACE {popScope();} ifstat1[isFor, next]
-	{$code = $expression.code
+	{
+	$code = $expression.code
 	        + $exprTrue + ":\n"
 	        + $statelist.code
 	        + Generator.generateInconditionalDeviationCode(next)
@@ -366,10 +344,6 @@ ifstat1[boolean isFor, String next]
     @init {
         $code = "";
     }
-//    @after {
-//                System.out.println("[IFSTAT1] code: \n" + $code);
-//                System.out.println("[IFSTAT1] next: \n" + $next);
-//            }
 :
 
 	ELSE statement[isFor, next] {$code = $statement.code;}
@@ -383,16 +357,11 @@ forstat[String next]
         $begin = createLabel("begin");
         $exprTrue = createLabel("exprTrue");
     }
-@after {
-//            System.out.println("[FORSTAT] next: \n" + $next);
-//            System.out.println("[FORSTAT] begin: \n" + $begin);
-//            System.out.println("[FORSTAT] exprTrue: \n" + $exprTrue);
-//            System.out.println("[FORSTAT] code: \n" + $code);
-        }
 :
 
 	FOR LPAREN atribstat1 SEMI expression[next] SEMI atribstat1 RPAREN statement[true, $begin]
-	{$code = $begin + ":\n"
+	{
+	$code = $begin + ":\n"
 	    + $expression.code
 	    + $exprTrue + ":\n"
 	    + $statement.code
@@ -417,9 +386,6 @@ atribstat1
     @init {
         $code = "";
     }
-//    @after {
-//                System.out.println("[ATRIBSTAT1] code: \n" + $code);
-//            }
 :
 
 	lvalue[' '] ASSIGN atribstat2 {$code = $lvalue.code + $atribstat2.code + $lvalue.last + $ASSIGN.text + $atribstat2.last;}
@@ -435,10 +401,6 @@ atribstat2
         $last = "";
         $expTree = new ExpressionTree();
     }
-//    @after {
-//        System.out.println("[ATRIBSTAT2]: code = \n" + $code);
-//        System.out.println("[ATRIBSTAT2]: last = " + $last);
-//    }
 :
 
 	IDENT atribstat3[new Node($IDENT.text, getTypeOfIdent($IDENT.text))] {$code = $atribstat3.code; $last= $atribstat3.last;}
@@ -504,18 +466,17 @@ atribstat2
             $last = "";
             $expTree = new ExpressionTree();
     }
-//     @after {
-//         System.out.println("[ATRIBSTAT3]: code = \n" + $code);
-//         System.out.println("[ATRIBSTAT3]: last = " + $last);
-//     }
  :
 	b[h] d[$b.sin] c[$d.sin] expression2 {$expTree = addTree($c.sin);}
+
 	{
 	    GenerateReturn generateReturn = generateCode($expTree);
 	    $code = generateReturn.getCode();
 	    $last = generateReturn.getLast();
 	}
+
 	|   LPAREN paramlistcall RPAREN
+
     {
         String[] params = $paramlistcall.text.split(",");
         String[] result = Generator.generateFunctionCallCode(h.getValue(), params);
@@ -542,10 +503,6 @@ expression[String exprFalse]
         @init {
             $code = "";
         }
-//    @after {
-//        System.out.println("[EXPR]: code = \n" + $code);
-//        System.out.println("[EXPR]: exprFalse = " + $exprFalse);
-//    }
 :
 
 	numexpression expression2 {$code = Generator.generateConditionalDeviationCode("False " + $numexpression.last + $expression2.code, exprFalse);}
@@ -556,9 +513,6 @@ expression2
     @init {
         $code = "";
     }
-//    @after {
-//        System.out.println("[EXPR2] code: " + $code);
-//    }
 :
 
 	GT numexpression {$code = $GT.text + $numexpression.last;}
@@ -574,23 +528,19 @@ numexpression
     returns [Node sin, String code, String last]
     locals [ExpressionTree expTree]
     @init {
-            $code = "";
-            $last = "";
-            $expTree = new ExpressionTree();
-    }
-    @after {
-        GenerateReturn generateReturn = generateCode($expTree);
-        $code = generateReturn.getCode();
-        $last = generateReturn.getLast();
-//        System.out.println("[NUMEXPR] code: \n" + $code);
-//        System.out.println("[NUMEXPR] last: " + $last);
+        $code = "";
+        $last = "";
+        $expTree = new ExpressionTree();
     }
 :
 	term c[$term.sin]
-	    {
-	        $sin = $c.sin;
-	        $expTree = addTree($sin);
-        }
+	{
+	    $sin = $c.sin;
+	    $expTree = addTree($sin);
+	    GenerateReturn generateReturn = generateCode($expTree);
+        $code = generateReturn.getCode();
+        $last = generateReturn.getLast();
+    }
 ;
 
 c[Node h]
@@ -653,16 +603,14 @@ lvalue[char h]
         $code = "";
         $last = "";
     }
-    @after {
-        ExpressionTree expTree = new ExpressionTree($node, temporaryCounter);
+:
+	 IDENT b[new Node(h + $IDENT.text, getTypeOfIdent($IDENT.text))] {$node = $b.sin;}
+	 {
+	    ExpressionTree expTree = new ExpressionTree($node, temporaryCounter);
         GenerateReturn generateReturn = generateCode(expTree);
         $code = generateReturn.getCode();
         $last = generateReturn.getLast();
-//        System.out.println("[LVALUE] code: \n" + $code);
-//        System.out.println("[LVALUE] last: \n" + $last);
-    }
-:
-	 IDENT b[new Node(h + $IDENT.text, getTypeOfIdent($IDENT.text))] {$node = $b.sin;}
+	 }
 ;
 
 /*
