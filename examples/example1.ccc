@@ -1,3 +1,4 @@
+
 def func1(int A, int B) {
   int SM[2];
   float x;

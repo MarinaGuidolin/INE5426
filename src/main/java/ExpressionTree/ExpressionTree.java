@@ -80,15 +80,16 @@ public class ExpressionTree {
 	}
 
 	public String validateExpressions(String type1, String type2, String operator) {
-		switch (operator) {
-			case "+": return validateSum(type1, type2);
-			case "-":
-		case "*":
+		if (operator.equals("+") || operator.equals("-")) {
+			return validateSum(type1, type2);
+		} else if (operator.equals("*")) {
 			return validateSubsMult(type1, type2);
-		case "/": return validateDivision(type1, type2);
-			case "%": return validateMod(type1, type2);
-			default: return "";
+		} else if (operator.equals("/")) {
+			return validateDivision(type1, type2);
+		} else if (operator.equals("%")) {
+			return validateMod(type1, type2);
 		}
+		return "";
 	}
 
 	public String validateSum(String type1, String type2) {

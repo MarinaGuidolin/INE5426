@@ -15,6 +15,10 @@ public class Main {
 				throw new Error("Should have only one argument");
 			}
 
+			if (args.length == 0) {
+				throw new Error("Missing or invalid arguments! Check the README");
+			}
+
 			String filePath = args[0];
 			if (!Utils.extractFileExtension(filePath).equals(VALID_FILE_EXTENSION)) {
 				throw new Error("Invalid file extension. It should be a .ccc file!");
