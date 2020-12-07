@@ -27,6 +27,6 @@ public class ScopeNode {
 
 	@Override public String toString() {
 		String init = isFor ? "FOR SCOPE:" : "SCOPE:";
-		return init + '\n' + symbolTable.toString();
+		return init + '\n' + symbolTable.toString() + '\n';
 	}
 }

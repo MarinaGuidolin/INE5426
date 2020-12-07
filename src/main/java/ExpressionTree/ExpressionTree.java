@@ -45,19 +45,44 @@ public class ExpressionTree {
 		if (node.getRight() == null && node.getLeft() == null) {
 			return node.getValue();
 		} else {
-			String left = generateCode(node.getLeft(), sb);
-			String right = generateCode(node.getRight(), sb);
-			String temp = "t" + counter;
+			String temp = "";
 			String code = "";
 			if (node.getValue() == "array") {
-				code = Generator.generateIndexedCopyCode(temp, right, left, false);
+				ArrayList<String> temps = new ArrayList<>();
+				generateCodeArray(node, sb, temps);
+				for (int i = 0; i < temps.size(); i++) {
+					temp = "t" + counter;
+					if (i == 0) {
+						sb.append(Generator.generateIndexedCopyCode(temp, node.getIdent(), temps.get(i), false));
+					} else {
+						sb.append(Generator.generateIndexedCopyCode(temp, "t" + (counter-1), temps.get(i), false));
+					}
+					counter++;
+				}
 			} else {
+				String left = generateCode(node.getLeft(), sb);
+				String right = generateCode(node.getRight(), sb);
+				temp = "t" + counter;
 				code = Generator.generateThreeAddressCode(temp, left, right, node.getValue());
 			}
 			sb.append(code);
 			counter++;
 			return temp;
 		}
+	}
+
+	public void generateCodeArray(Node node, StringBuilder sb, ArrayList<String> temps) {
+		if (node.getRight() == null && node.getLeft() == null) {
+			return;
+		} else {
+			String left = generateCode(node.getLeft(), sb);
+			temps.add(left);
+			generateCodeArray(node.getRight(), sb, temps);
+		}
+	}
+
+	public void generate(StringBuilder sb, ArrayList<String> temps) {
+
 	}
 
 	public String validateExpressions(String type1, String type2, String operator) {

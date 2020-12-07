@@ -39,7 +39,6 @@ public class Main {
 			Log.info("INFO", "Syntactic analysis finished with: " + totalErrors + (totalErrors == 1 ? " error." : " errors."));
 
 			Utils.exportTokens(filePath, tokens, lexemeSet);
-			Utils.exportSymbolTable(filePath, lexemeSet);
 
 			TreeViewer viewer = new TreeViewer(Arrays.asList(
 					parser.getRuleNames()),tree);

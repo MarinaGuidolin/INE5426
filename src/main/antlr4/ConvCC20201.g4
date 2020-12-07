@@ -45,7 +45,7 @@ import static java.lang.System.exit;
                 break;
             }
             case "func": {
-                s = "F_" + funcCounter;
+                s = "FUNC_" + funcCounter;
                 funcCounter++;
                 break;
             }
@@ -126,14 +126,16 @@ program
     $code = "";
 }
 @after {
+    popScope();
     Utils.exportExpressionTrees(trees);
-    System.out.println("[PROGRAM] code: \n" + $code);
+    Utils.exportIntermediaryCode($code);
+    Utils.exportScopes(scopes);
     Log.success("SUCESS", "Well done! All arithmetic expressions are valid");
     Log.success("SUCESS", "Well done! All declared variables are valid");
     Log.success("SUCESS", "Well done! All break commands are contained within a for statement");
 }
 :
-	statement[false, createLabel("label")]
+	statement[false, createLabel("label"), ""]
 	{
 	    if (!$statement.code.isEmpty()) {
 	        $code = $statement.code ;
@@ -193,7 +195,7 @@ funcdef
         $next = createLabel("label");
     }
 :
-	 DEF IDENT {insertIdent($IDENT.text, true, "function", $IDENT.line);} {putScope(false);} LPAREN paramlist RPAREN LBRACE statelist[false, $next] RBRACE {popScope();}
+	 DEF IDENT {insertIdent($IDENT.text, true, "function", $IDENT.line);} {putScope(false);} LPAREN paramlist RPAREN LBRACE statelist[false, $next, ""] RBRACE {popScope();}
      {
         if (!$statelist.code.isEmpty()) {
             $code = $funcLabel + ":\n" + $statelist.code;
@@ -216,7 +218,7 @@ paramlist2:
 
 ;
 
-statement[boolean isFor, String next]
+statement[boolean isFor, String next, String breakNext]
     returns [String code]
     @init {
         $code = "";
@@ -228,19 +230,19 @@ statement[boolean isFor, String next]
 	| printstat SEMI
 	| readstat SEMI 
 	| returnstat SEMI
-	| ifstat[isFor, next] {$code = $ifstat.code;}
+	| ifstat[isFor, next, breakNext] {$code = $ifstat.code;}
 	| forstat[next] {$code = $forstat.code;}
-	| LBRACE {putScope(isFor);} statelist[isFor, next] RBRACE {popScope();}
+	| LBRACE {putScope(isFor);} statelist[isFor, next, breakNext] RBRACE {popScope();}
 	{
         if (!$statelist.code.isEmpty()) {
             $code = $statelist.code;
         }
 	}
-	| BREAK {verifyBreak($BREAK.line);} SEMI
+	| BREAK {verifyBreak($BREAK.line);} {$code = Generator.generateInconditionalDeviationCode($breakNext);}SEMI
 	| SEMI
 ;
 
-statelist[boolean isFor, String next]
+statelist[boolean isFor, String next, String breakNext]
     returns [String code]
     locals [String stmtNext]
     @init {
@@ -249,7 +251,7 @@ statelist[boolean isFor, String next]
     }
 :
 
-	statement[isFor, $stmtNext] statelist2[isFor, next]
+	statement[isFor, $stmtNext, breakNext] statelist2[isFor, next, breakNext]
 	{
 	    if ($statement.code.isEmpty()) {
 	        $code = $stmtNext + ":\n" +  $statelist2.code;
@@ -261,14 +263,14 @@ statelist[boolean isFor, String next]
 	}
 ;
 
-statelist2[boolean isFor, String next]
+statelist2[boolean isFor, String next, String breakNext]
     returns [String code]
     @init {
         $code = "";
     }
 :
 
-	statelist[isFor, next]
+	statelist[isFor, next, breakNext]
 	{
 	    if (!$statelist.code.isEmpty()) {
 	        $code = $statelist.code;
@@ -311,7 +313,7 @@ printstat:
 
 readstat:
 
-	READ lvalue[' ']
+	READ lvalue[""]
 ;
 
 returnstat:
@@ -319,7 +321,7 @@ returnstat:
 	RETURN
 ;
 
-ifstat[boolean isFor, String next]
+ifstat[boolean isFor, String next, String breakNext]
     returns [String code]
     locals [String exprTrue, String exprFalse]
     @init {
@@ -328,7 +330,7 @@ ifstat[boolean isFor, String next]
         $exprFalse = createLabel("exprFalse");
     }
 :
-	IF LPAREN expression[$exprFalse] RPAREN LBRACE {putScope(isFor);} statelist[isFor, next] RBRACE {popScope();} ifstat1[isFor, next]
+	IF LPAREN expression[$exprFalse] RPAREN LBRACE {putScope(isFor);} statelist[isFor, next, breakNext] RBRACE {popScope();} ifstat1[isFor, next, breakNext]
 	{
 	$code = $expression.code
 	        + $exprTrue + ":\n"
@@ -339,14 +341,14 @@ ifstat[boolean isFor, String next]
 	}
 ;
 
-ifstat1[boolean isFor, String next]
+ifstat1[boolean isFor, String next, String breakNext]
     returns [String code]
     @init {
         $code = "";
     }
 :
 
-	ELSE statement[isFor, next] {$code = $statement.code;}
+	ELSE statement[isFor, next, breakNext] {$code = $statement.code;}
 	|
 ;
 
@@ -359,7 +361,7 @@ forstat[String next]
     }
 :
 
-	FOR LPAREN atribstat1 SEMI expression[next] SEMI atribstat1 RPAREN statement[true, $begin]
+	FOR LPAREN atribstat1 SEMI expression[next] SEMI atribstat1 RPAREN statement[true, $begin, next]
 	{
 	$code = $begin + ":\n"
 	    + $expression.code
@@ -388,7 +390,12 @@ atribstat1
     }
 :
 
-	lvalue[' '] ASSIGN atribstat2 {$code = $lvalue.code + $atribstat2.code + $lvalue.last + $ASSIGN.text + $atribstat2.last;}
+	lvalue[""] ASSIGN atribstat2
+	{
+	    if (!$atribstat2.code.isEmpty()) {
+	        $code = $lvalue.code + $atribstat2.code + $lvalue.last + $ASSIGN.text + $atribstat2.last;
+	    }
+	}
 ;
 
 
@@ -407,7 +414,7 @@ atribstat2
 
 	| allocexpression
 
-	| ADD factor['+'] d[$factor.sin] c[$d.sin] expression2 {$expTree = addTree($c.sin);}
+	| ADD factor["+"] d[$factor.sin] c[$d.sin] expression2 {$expTree = addTree($c.sin);}
 
 	{
 	    GenerateReturn generateReturn = generateCode($expTree);
@@ -415,7 +422,7 @@ atribstat2
 	    $last = generateReturn.getLast();
 	}
 
-	| SUB factor['-'] d[$factor.sin] c[$d.sin] expression2 {$expTree = addTree($c.sin);}
+	| SUB factor["-"] d[$factor.sin] c[$d.sin] expression2 {$expTree = addTree($c.sin);}
 
 	{
 	    GenerateReturn generateReturn = generateCode($expTree);
@@ -581,12 +588,12 @@ t4[Node h]
 unaryexpr
     returns [Node sin]
 :
-	ADD factor['+'] {$sin = $factor.sin;}
-	| SUB factor['-'] {$sin = $factor.sin;}
-	| factor[' '] {$sin = $factor.sin;}
+	ADD factor["+"] {$sin = $factor.sin;}
+	| SUB factor["-"] {$sin = $factor.sin;}
+	| factor[""] {$sin = $factor.sin;}
 ;
 
-factor[char h]
+factor[String h]
     returns [Node sin]
 :
 	INT {$sin = new Node(h + $INT.text, "int");}
@@ -597,7 +604,7 @@ factor[char h]
 	| LPAREN numexpression RPAREN {$sin = $numexpression.sin;}
 ;
 
-lvalue[char h]
+lvalue[String h]
     returns [Node node, String code, String last]
     @init {
         $code = "";
