@@ -5,6 +5,10 @@ import ExpressionTree.*;
 import Scope.*;
 import SymbolTable.*;
 import Enum.*;
+import GCI.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import static java.lang.System.exit;
 }
 
@@ -15,16 +19,61 @@ import static java.lang.System.exit;
 
     LinkedStack scopeStack = new LinkedStack();
 
-    void addTree(Node node) {
-        ExpressionTree expTree = new ExpressionTree(node);
+    int temporaryCounter, labelCounter, funcCounter, beginCounter, exprTrueCounter, exprFalseCounter = 0;
+
+    ExpressionTree addTree(Node node) {
+
+        ExpressionTree expTree = new ExpressionTree(node, temporaryCounter);
         Node root = expTree.getRoot();
-        String result = expTree.postOrder(root);
+        String result = expTree.validateTree(root);
         if (result.equals("")) {
             String msg = "The tree below contains invalid expressions\n" + expTree.getRoot().toString();
             notifyErrorListeners("Invalid expression detected");
             throw new ParseCancellationException('\n' + msg);
         }
+
         trees.add(expTree);
+        return expTree;
+    }
+
+    String createLabel(String type) {
+        String s = "";
+        switch (type) {
+            case "label": {
+                s = "L_" + labelCounter;
+                labelCounter++;
+                break;
+            }
+            case "func": {
+                s = "FUNC_" + funcCounter;
+                funcCounter++;
+                break;
+            }
+            case "begin": {
+                s = "BEGIN_" + beginCounter;
+                beginCounter++;
+                break;
+            }
+            case "exprTrue": {
+                s = "EXPR_TRUE_" + exprTrueCounter;
+                exprTrueCounter++;
+                break;
+            }
+            case "exprFalse": {
+                s = "EXPR_FALSE_" + exprFalseCounter;
+                exprFalseCounter++;
+                break;
+            }
+        }
+        return s;
+    }
+
+    GenerateReturn generateCode(ExpressionTree expTree) {
+        StringBuilder sb = new StringBuilder();
+        Node root = expTree.getRoot();
+        GenerateReturn generateReturn = new GenerateReturn(expTree.generateCode(root, sb), sb.toString());
+        temporaryCounter = expTree.getCounter();
+        return generateReturn;
     }
 
     void insertIdent(String lexeme, boolean isFunction, String type, int declarationLine) {
@@ -71,33 +120,87 @@ import static java.lang.System.exit;
 }
 
 program
+    locals [String code]
+@init {
+    {putScope(false);}
+    $code = "";
+}
 @after {
+    popScope();
     Utils.exportExpressionTrees(trees);
-    //for (ScopeNode n: scopes) {
-        //System.out.println(n.toString());
-    //}
+    Utils.exportIntermediaryCode($code);
+    Utils.exportScopes(scopes);
     Log.success("SUCESS", "Well done! All arithmetic expressions are valid");
     Log.success("SUCESS", "Well done! All declared variables are valid");
     Log.success("SUCESS", "Well done! All break commands are contained within a for statement");
 }
 :
- 	{putScope(false);} (statement[false]
-	| funclist)?
-	{popScope();}
+	statement[false, createLabel("label"), ""]
+	{
+	    if (!$statement.code.isEmpty()) {
+	        $code = $statement.code ;
+	    }
+	}
+	| funclist
+    {
+        if (!$funclist.code.isEmpty()) {
+            $code = $funclist.code;
+        }
+    }
+	|
 ;
 
-funclist: 
+funclist
+    returns [String code]
+    @init {
+        $code = "";
+    }
+:
 
-	funcdef funclist2 
+	funcdef funclist2
+    {
+        if ($funcdef.code.isEmpty()) {
+	        $code = $funclist2.code;
+	    } else if ($funclist2.code.isEmpty()) {
+	        $code = $funcdef.code;
+	    } else {
+	        $code = $funcdef.code + "\n" +  $funclist2.code;
+	    }
+	}
 ;
 
-funclist2:  
+funclist2
+    returns [String code]
+    @init {
+        $code = "";
+    }
+:
 
-	funclist?
+	funclist
+	{
+        if (!$funclist.code.isEmpty()) {
+            $code = $funclist.code;
+        }
+    }
+
+	|
 ;
 
-funcdef:
-	 DEF IDENT {insertIdent($IDENT.text, true, "function", $IDENT.line);} LPAREN {putScope(false);} paramlist RPAREN LBRACE statelist[false] RBRACE {popScope();}
+funcdef
+    returns [String code]
+    locals [String funcLabel, String next]
+    @init {
+        $code = "";
+        $funcLabel = createLabel("func");
+        $next = createLabel("label");
+    }
+:
+	 DEF IDENT {insertIdent($IDENT.text, true, "function", $IDENT.line);} {putScope(false);} LPAREN paramlist RPAREN LBRACE statelist[false, $next, ""] RBRACE {popScope();}
+     {
+        if (!$statelist.code.isEmpty()) {
+            $code = $funcLabel + ":\n" + $statelist.code;
+        }
+     }
 ;
 
 paramlist:
@@ -115,18 +218,65 @@ paramlist2:
 
 ;
 
-statement[boolean isFor]:
+statement[boolean isFor, String next, String breakNext]
+    returns [String code]
+    @init {
+        $code = "";
+    }
+:
 
-	vardecl SEMI 
-	| atribstat1 SEMI
+	vardecl SEMI
+	| atribstat1 SEMI {$code = $atribstat1.code;}
 	| printstat SEMI
 	| readstat SEMI 
 	| returnstat SEMI
-	| ifstat[isFor]
-	| forstat 
-	| LBRACE {putScope(isFor);} statelist[isFor] RBRACE {popScope();}
-	| BREAK {verifyBreak($BREAK.line);} SEMI
+	| ifstat[isFor, next, breakNext] {$code = $ifstat.code;}
+	| forstat[next] {$code = $forstat.code;}
+	| LBRACE {putScope(isFor);} statelist[isFor, next, breakNext] RBRACE {popScope();}
+	{
+        if (!$statelist.code.isEmpty()) {
+            $code = $statelist.code;
+        }
+	}
+	| BREAK {verifyBreak($BREAK.line);} {$code = Generator.generateInconditionalDeviationCode($breakNext);}SEMI
 	| SEMI
+;
+
+statelist[boolean isFor, String next, String breakNext]
+    returns [String code]
+    locals [String stmtNext]
+    @init {
+        $code = "";
+        $stmtNext = createLabel("label");
+    }
+:
+
+	statement[isFor, $stmtNext, breakNext] statelist2[isFor, next, breakNext]
+	{
+	    if ($statement.code.isEmpty()) {
+	        $code = $stmtNext + ":\n" +  $statelist2.code;
+	    } else if ($statelist2.code.isEmpty()) {
+	        $code = $statement.code + '\n' + $stmtNext + ":\n" ;
+	    } else {
+	        $code = $statement.code + "\n" + $stmtNext + ":\n" +  $statelist2.code ;
+	    }
+	}
+;
+
+statelist2[boolean isFor, String next, String breakNext]
+    returns [String code]
+    @init {
+        $code = "";
+    }
+:
+
+	statelist[isFor, next, breakNext]
+	{
+	    if (!$statelist.code.isEmpty()) {
+	        $code = $statelist.code;
+	    }
+	}
+	|
 ;
 
 vardecl:
@@ -158,12 +308,12 @@ paramlistcall2:
 
 printstat:
 
-	PRINT expression
+	PRINT expression[""]
 ;
 
 readstat:
 
-	READ lvalue[' ']
+	READ lvalue[""]
 ;
 
 returnstat:
@@ -171,32 +321,55 @@ returnstat:
 	RETURN
 ;
 
-ifstat[boolean isFor]:
-
-	IF LPAREN expression RPAREN LBRACE {putScope(isFor);} statelist[isFor] RBRACE {popScope();} ifstat1[isFor]
+ifstat[boolean isFor, String next, String breakNext]
+    returns [String code]
+    locals [String exprTrue, String exprFalse]
+    @init {
+        $code = "";
+        $exprTrue = createLabel("exprTrue");
+        $exprFalse = createLabel("exprFalse");
+    }
+:
+	IF LPAREN expression[$exprFalse] RPAREN LBRACE {putScope(isFor);} statelist[isFor, next, breakNext] RBRACE {popScope();} ifstat1[isFor, next, breakNext]
+	{
+	$code = $expression.code
+	        + $exprTrue + ":\n"
+	        + $statelist.code
+	        + Generator.generateInconditionalDeviationCode(next)
+	        + $exprFalse + ":\n"
+	        + $ifstat1.code;
+	}
 ;
 
-ifstat1[boolean isFor]:
+ifstat1[boolean isFor, String next, String breakNext]
+    returns [String code]
+    @init {
+        $code = "";
+    }
+:
 
-	ELSE statement[isFor]
+	ELSE statement[isFor, next, breakNext] {$code = $statement.code;}
 	|
 ;
 
-forstat:
+forstat[String next]
+    returns [String code]
+    locals[String begin, String exprTrue]
+    @init {
+        $begin = createLabel("begin");
+        $exprTrue = createLabel("exprTrue");
+    }
+:
 
-	FOR LPAREN atribstat1 SEMI expression SEMI atribstat1 RPAREN statement[true]
+	FOR LPAREN atribstat1 SEMI expression[next] SEMI atribstat1 RPAREN statement[true, $begin, next]
+	{
+	$code = $begin + ":\n"
+	    + $expression.code
+	    + $exprTrue + ":\n"
+	    + $statement.code
+	    + Generator.generateInconditionalDeviationCode($begin);
+	}
 ;
-
-statelist[boolean isFor]:
-
-	statement[isFor] statelist2[isFor]
-;
-
-statelist2[boolean isFor]:
-
-	statelist[isFor]
-	|
-;	
 
 allocexpression:
 
@@ -210,102 +383,218 @@ allocexpression1:
 	| TYPE_STRING t2 b[null]
 ;
 
-atribstat1:
+atribstat1
+    returns [String code]
+    @init {
+        $code = "";
+    }
+:
 
-	lvalue[' '] ASSIGN atribstat2
+	lvalue[""] ASSIGN atribstat2
+	{
+	    if (!$atribstat2.code.isEmpty()) {
+	        $code = $lvalue.code + $atribstat2.code + $lvalue.last + $ASSIGN.text + $atribstat2.last;
+	    }
+	}
 ;
 
 
-atribstat2:
+atribstat2
+    returns [String code, String last]
+    locals [ExpressionTree expTree]
 
-	IDENT atribstat3[new Node($IDENT.text, getTypeOfIdent($IDENT.text))]
+    @init {
+        $code = "";
+        $last = "";
+        $expTree = new ExpressionTree();
+    }
+:
+
+	IDENT atribstat3[new Node($IDENT.text, getTypeOfIdent($IDENT.text))] {$code = $atribstat3.code; $last= $atribstat3.last;}
+
 	| allocexpression
-	| ADD factor['+'] d[$factor.sin] c[$d.sin] expression2 {addTree($c.sin); }
-	| SUB factor['-'] d[$factor.sin] c[$d.sin] expression2 {addTree($c.sin); }
-	| INT d[new Node($INT.text, "int")] c[$d.sin] expression2 {addTree($c.sin); }
-  	| FLOAT d[new Node($FLOAT.text, "float")] c[$d.sin] expression2 {addTree($c.sin);}
-  	| STRING d[new Node($STRING.text, "string")] c[$d.sin] expression2 {addTree($c.sin);}
+
+	| ADD factor["+"] d[$factor.sin] c[$d.sin] expression2 {$expTree = addTree($c.sin);}
+
+	{
+	    GenerateReturn generateReturn = generateCode($expTree);
+	    $code = generateReturn.getCode();
+	    $last = generateReturn.getLast();
+	}
+
+	| SUB factor["-"] d[$factor.sin] c[$d.sin] expression2 {$expTree = addTree($c.sin);}
+
+	{
+	    GenerateReturn generateReturn = generateCode($expTree);
+	    $code = generateReturn.getCode();
+	    $last = generateReturn.getLast();
+	}
+
+	| INT d[new Node($INT.text, "int")] c[$d.sin] expression2 {$expTree = addTree($c.sin);}
+
+	{
+	    GenerateReturn generateReturn = generateCode($expTree);
+	    $code = generateReturn.getCode();
+	    $last = generateReturn.getLast();
+	}
+
+  	| FLOAT d[new Node($FLOAT.text, "float")] c[$d.sin] expression2 {$expTree = addTree($c.sin);}
+
+	{
+	    GenerateReturn generateReturn = generateCode($expTree);
+	    $code = generateReturn.getCode();
+	    $last = generateReturn.getLast();
+	}
+
+  	| STRING d[new Node($STRING.text, "string")] c[$d.sin] expression2 {$expTree = addTree($c.sin);}
+
+	{
+	    GenerateReturn generateReturn = generateCode($expTree);
+	    $code = generateReturn.getCode();
+	    $last = generateReturn.getLast();
+	}
+
 	| NULL d[null] c[null] expression2
-	| LPAREN numexpression RPAREN d[$numexpression.sin] c[$d.sin] expression2 {addTree($c.sin);}
+
+	| LPAREN numexpression RPAREN d[$numexpression.sin] c[$d.sin] expression2 {$expTree = addTree($c.sin);}
+
+	{
+	    GenerateReturn generateReturn = generateCode($expTree);
+	    $code = generateReturn.getCode();
+	    $last = generateReturn.getLast();
+	}
 ;
 
  atribstat3[Node h]
+    returns [String code, String last]
+    locals [ExpressionTree expTree]
+    @init {
+            $code = "";
+            $last = "";
+            $expTree = new ExpressionTree();
+    }
  :
-	b[h] d[$b.sin] c[$d.sin] expression2 {addTree($c.sin);}
+	b[h] d[$b.sin] c[$d.sin] expression2 {$expTree = addTree($c.sin);}
+
+	{
+	    GenerateReturn generateReturn = generateCode($expTree);
+	    $code = generateReturn.getCode();
+	    $last = generateReturn.getLast();
+	}
+
 	|   LPAREN paramlistcall RPAREN
+
+    {
+        String[] params = $paramlistcall.text.split(",");
+        String[] result = Generator.generateFunctionCallCode(h.getValue(), params);
+        $code = result[0];
+        $last = result[1];
+    }
 ;
 
-b[Node h] returns [Node sin]
+b[Node type]
+    returns [Node sin]
 :
-	t2 b[h] {$sin = new Node("array", $t2.sin, $b.sin);}
-	| {$sin = h;}
+	t2 b[type] {$sin = new Node("array", $t2.sin, $b.sin);}
+	| {$sin = type;}
 ;
 
-t2 returns[Node sin]
+t2
+    returns[Node sin]
 :
 	LBRACK numexpression RBRACK {$sin = $numexpression.sin;}
 ;
 
-expression
+expression[String exprFalse]
+    returns [String code]
+        @init {
+            $code = "";
+        }
 :
 
-	numexpression expression2
+	numexpression expression2 {$code = Generator.generateConditionalDeviationCode("False " + $numexpression.last + $expression2.code, exprFalse);}
 ; 
 
-expression2:
+expression2
+    returns [String code]
+    @init {
+        $code = "";
+    }
+:
 
-	GT numexpression
-	| LT numexpression
-	| LE numexpression
-	| GE numexpression
-	| EQUAL numexpression
-	| NOTEQUAL numexpression
+	GT numexpression {$code = $GT.text + $numexpression.last;}
+	| LT numexpression {$code = $LT.text + $numexpression.last;}
+	| LE numexpression {$code = $LE.text + $numexpression.last;}
+	| GE numexpression {$code = $GE.text + $numexpression.last;}
+	| EQUAL numexpression {$code = $EQUAL.text + $numexpression.last;}
+	| NOTEQUAL numexpression {$code = $NOTEQUAL.text + $numexpression.last;}
 	|
 ; 
 
-numexpression returns [Node sin]
+numexpression
+    returns [Node sin, String code, String last]
+    locals [ExpressionTree expTree]
+    @init {
+        $code = "";
+        $last = "";
+        $expTree = new ExpressionTree();
+    }
 :
-	term c[$term.sin] {$sin = $c.sin;} {addTree($sin);}
+	term c[$term.sin]
+	{
+	    $sin = $c.sin;
+	    $expTree = addTree($sin);
+	    GenerateReturn generateReturn = generateCode($expTree);
+        $code = generateReturn.getCode();
+        $last = generateReturn.getLast();
+    }
 ;
 
-c[Node h] returns [Node sin]
+c[Node h]
+    returns [Node sin]
 :
 	t3[h] c[$t3.sin] {$sin = $c.sin;}
 	| {$sin = h;}
 ;
 
-t3[Node h] returns [Node sin]
+t3[Node h]
+    returns [Node sin]
 :
 	ADD term {$sin = new Node($ADD.text, h, $term.sin);}
 	| SUB term {$sin = new Node($SUB.text, h, $term.sin);}
 ;
 
-term returns [Node sin]
+term
+    returns [Node sin]
 :
 	 unaryexpr d[$unaryexpr.sin] {$sin = $d.sin;}
 ;
 
-d[Node h] returns [Node sin]
+d[Node h]
+    returns [Node sin]
 :
 	t4[h] d[$t4.sin] {$sin = $d.sin;}
 	| {$sin = h;}
 ;
 
-t4[Node h] returns [Node sin]
+t4[Node h]
+    returns [Node sin]
 :
 	MUL unaryexpr {$sin = new Node($MUL.text, h, $unaryexpr.sin);}
 	| DIV unaryexpr {$sin = new Node($DIV.text, h, $unaryexpr.sin);}
 	| MOD unaryexpr {$sin = new Node($MOD.text, h, $unaryexpr.sin);}
 ;
 
-unaryexpr returns [Node sin]
+unaryexpr
+    returns [Node sin]
 :
-	ADD factor['+'] {$sin = $factor.sin;}
-	| SUB factor['-'] {$sin = $factor.sin;}
-	| factor[' '] {$sin = $factor.sin;}
+	ADD factor["+"] {$sin = $factor.sin;}
+	| SUB factor["-"] {$sin = $factor.sin;}
+	| factor[""] {$sin = $factor.sin;}
 ;
 
-factor[char h] returns [Node sin]
+factor[String h]
+    returns [Node sin]
 :
 	INT {$sin = new Node(h + $INT.text, "int");}
 	| FLOAT {$sin = new Node(h + $FLOAT.text, "float");}
@@ -315,9 +604,20 @@ factor[char h] returns [Node sin]
 	| LPAREN numexpression RPAREN {$sin = $numexpression.sin;}
 ;
 
-lvalue[char h] returns [Node node]
+lvalue[String h]
+    returns [Node node, String code, String last]
+    @init {
+        $code = "";
+        $last = "";
+    }
 :
 	 IDENT b[new Node(h + $IDENT.text, getTypeOfIdent($IDENT.text))] {$node = $b.sin;}
+	 {
+	    ExpressionTree expTree = new ExpressionTree($node, temporaryCounter);
+        GenerateReturn generateReturn = generateCode(expTree);
+        $code = generateReturn.getCode();
+        $last = generateReturn.getLast();
+	 }
 ;
 
 /*

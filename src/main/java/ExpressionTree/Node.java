@@ -31,6 +31,17 @@ public class Node {
 		return value;
 	}
 
+	public String getIdent() {
+		if(value == "array") {
+			Node rightChild = right;
+			while (rightChild.right != null) {
+				rightChild = rightChild.right;
+			}
+			return rightChild.getValue();
+		}
+		return "";
+	}
+
 	public void setValue(String value) {
 		this.value = value;
 	}
@@ -81,7 +92,7 @@ public class Node {
 		if(right!=null) {
 			right.toString(new StringBuilder().append(prefix).append(isTail ? "│   " : "    "), false, sb);
 		}
-		sb.append(prefix).append(isTail ? "└── " : "┌── ").append(value.toString()).append("\n");
+		sb.append(prefix).append(isTail ? "└── " : "┌── ").append(value).append("\n");
 		if(left!=null) {
 			left.toString(new StringBuilder().append(prefix).append(isTail ? "    " : "│   "), true, sb);
 		}

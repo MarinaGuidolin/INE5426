@@ -1,19 +1,23 @@
-def func1(int A, int B)
-{
+
+def func1(int A, int B) {
   int SM[2];
-  SM[0] = -A[1+4] + B;
-  SM[1] = -B[0] + SM[0];
+  float x;
+  SM[0] = A + B;
+  float z;
+  SM[1] = B * C;
+  int i;
   return;
 }
 
-def principal()
-{
+def principal() {
+  int y;
   int C;
-    {float C;}
+  int j;
   int D;
+  int i;
   int R;
+  y = new int[10];
   C = 4;
-  D = 5 * -4 + -10000;
-  C = 4 + -5;
-  return;
+  j = 0;
+  D = 5;
 }

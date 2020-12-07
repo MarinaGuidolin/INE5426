@@ -1,31 +1,81 @@
 package ExpressionTree;
 
+import java.util.ArrayList;
+
+import GCI.*;
+
 public class ExpressionTree {
 	private Node root;
 
-	public ExpressionTree(Node node) {
+	private int counter;
+
+	public ExpressionTree(Node node, int counter) {
 		this.root = node;
+		this.counter = counter;
 	}
 
 	public ExpressionTree() {
 		this.root = null;
+		this.counter = 0;
 	}
 
 	public Node getRoot() {
 		return root;
 	}
 
-	public String postOrder(Node node) {
+	public int getCounter() {
+		return counter;
+	}
+
+	public String validateTree(Node node) {
 		if (node.getValue().equals("array")) {
 			return node.getType();
 		} else {
 			if (node.getRight() == null && node.getLeft() == null) {
 				return node.getType();
 			}
-			String left = postOrder(node.getLeft());
-			String right = postOrder(node.getRight());
+			String left = validateTree(node.getLeft());
+			String right = validateTree(node.getRight());
 			String operator = node.getValue();
 			return validateExpressions(left, right, operator);
+		}
+	}
+
+	public String generateCode(Node node, StringBuilder sb) {
+		if (node.getRight() == null && node.getLeft() == null) {
+			return node.getValue();
+		} else {
+			String temp = "";
+			String code = "";
+			if (node.getValue().equals("array")) {
+				ArrayList<String> temps = new ArrayList<>();
+				generateCodeArray(node, sb, temps);
+				for (int i = 0; i < temps.size(); i++) {
+					temp = "t" + counter;
+					if (i == 0) {
+						sb.append(Generator.generateIndexedCopyCode(temp, node.getIdent(), temps.get(i), false));
+					} else {
+						sb.append(Generator.generateIndexedCopyCode(temp, "t" + (counter-1), temps.get(i), false));
+					}
+					counter++;
+				}
+			} else {
+				String left = generateCode(node.getLeft(), sb);
+				String right = generateCode(node.getRight(), sb);
+				temp = "t" + counter;
+				code = Generator.generateThreeAddressCode(temp, left, right, node.getValue());
+			}
+			sb.append(code);
+			counter++;
+			return temp;
+		}
+	}
+
+	public void generateCodeArray(Node node, StringBuilder sb, ArrayList<String> temps) {
+		if (node.getRight() != null && node.getLeft() != null) {
+			String left = generateCode(node.getLeft(), sb);
+			temps.add(left);
+			generateCodeArray(node.getRight(), sb, temps);
 		}
 	}
 
