@@ -47,7 +47,7 @@ public class ExpressionTree {
 		} else {
 			String temp = "";
 			String code = "";
-			if (node.getValue() == "array") {
+			if (node.getValue().equals("array")) {
 				ArrayList<String> temps = new ArrayList<>();
 				generateCodeArray(node, sb, temps);
 				for (int i = 0; i < temps.size(); i++) {
@@ -72,17 +72,11 @@ public class ExpressionTree {
 	}
 
 	public void generateCodeArray(Node node, StringBuilder sb, ArrayList<String> temps) {
-		if (node.getRight() == null && node.getLeft() == null) {
-			return;
-		} else {
+		if (node.getRight() != null && node.getLeft() != null) {
 			String left = generateCode(node.getLeft(), sb);
 			temps.add(left);
 			generateCodeArray(node.getRight(), sb, temps);
 		}
-	}
-
-	public void generate(StringBuilder sb, ArrayList<String> temps) {
-
 	}
 
 	public String validateExpressions(String type1, String type2, String operator) {
