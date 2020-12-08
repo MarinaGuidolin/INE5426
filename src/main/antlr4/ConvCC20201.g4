@@ -22,7 +22,6 @@ import static java.lang.System.exit;
     int temporaryCounter, labelCounter, funcCounter, beginCounter, exprTrueCounter, exprFalseCounter = 0;
 
     ExpressionTree addTree(Node node) {
-
         ExpressionTree expTree = new ExpressionTree(node, temporaryCounter);
         Node root = expTree.getRoot();
         String result = expTree.validateTree(root);

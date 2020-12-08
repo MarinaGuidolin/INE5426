@@ -80,9 +80,9 @@ public class ExpressionTree {
 	}
 
 	public String validateExpressions(String type1, String type2, String operator) {
-		if (operator.equals("+") || operator.equals("-")) {
+		if (operator.equals("+")) {
 			return validateSum(type1, type2);
-		} else if (operator.equals("*")) {
+		} else if (operator.equals("*") || operator.equals("-")) {
 			return validateSubsMult(type1, type2);
 		} else if (operator.equals("/")) {
 			return validateDivision(type1, type2);
