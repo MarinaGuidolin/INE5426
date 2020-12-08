@@ -6,7 +6,7 @@ public class Node {
 	private Node right;
 	private String type;
 
-	// Examplo: operando("array") Node(operando) Node(operando) tipo
+	// Exemplo: operando("array") Node(operando) Node(operando) tipo
 	public Node(String value, Node left, Node right, String type) {
 		this.value = value;
 		this.left = left;
@@ -14,7 +14,7 @@ public class Node {
 		this.type = type;
 	}
 
-	// Examplo: operador Node(operando/operador) Node(operando/operador)
+	// Exemplo: operador Node(operando/operador) Node(operando/operador)
 	public Node(String value, Node left, Node right) {
 		this.value = value;
 		this.left = left;
@@ -22,7 +22,7 @@ public class Node {
 		this.type = "";
 	}
 
-	// Examplo: operando tipo
+	// Exemplo: operando tipo
 	public Node(String value, String type) {
 		this.value = value;
 		this.left = null;
@@ -37,10 +37,12 @@ public class Node {
 	public String getIdent() {
 		if(value.equals("array")) {
 			Node rightChild = this.right;
-			while (rightChild.right != null) {
-				rightChild = rightChild.right;
+			if (rightChild != null) {
+				while (rightChild.right != null) {
+					rightChild = rightChild.right;
+				}
+				return rightChild.getValue();
 			}
-			return rightChild.getValue();
 		}
 		return "";
 	}
@@ -94,11 +96,11 @@ public class Node {
 	}
 
 	public StringBuilder toString(StringBuilder prefix, boolean isTail, StringBuilder sb) {
-		if(this.right!=null) {
+		if(this.right != null) {
 			this.right.toString(new StringBuilder().append(prefix).append(isTail ? "│   " : "    "), false, sb);
 		}
 		sb.append(prefix).append(isTail ? "└── " : "┌── ").append(value).append("\n");
-		if(this.left!=null) {
+		if(this.left != null) {
 			this.left.toString(new StringBuilder().append(prefix).append(isTail ? "    " : "│   "), true, sb);
 		}
 		return sb;
