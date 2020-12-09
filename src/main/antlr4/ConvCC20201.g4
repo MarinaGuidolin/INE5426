@@ -464,7 +464,7 @@ atribstat2
 	}
 ;
 
- atribstat3[Node h]
+atribstat3[Node h]
     returns [String code, String last]
     locals [ExpressionTree expTree]
     @init {
@@ -472,7 +472,7 @@ atribstat2
             $last = "";
             $expTree = new ExpressionTree();
     }
- :
+:
 	b[h] d[$b.sin] c[$d.sin] expression2 {$expTree = addTree($c.sin);}
 
 	{
