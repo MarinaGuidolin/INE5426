@@ -1,7 +1,23 @@
-Tabela LL(1):
+Grafos EXPA:
 
-https://docs.google.com/spreadsheets/d/1AWMFLvnheoSYTL9JG5jGowKogygYcgmB6KjTaZpchIo/edit?usp=sharing
+https://drive.google.com/drive/folders/1D061UzjY4dcOg2b4MEw-eutKJmmiPGcw?usp=sharing
 
-First e Follow:
+Grafos DEC:
 
-https://docs.google.com/document/d/1_eBXEKbzifsYIJiJIXEesGI4qk97TCQ2eDMI3PFKv8A/edit?usp=sharing
+https://drive.google.com/drive/folders/1hIamuE_QcDQ8nJ6NniNv5EGpKK56ZM7l?usp=sharing
+
+Grafos GCI:
+
+https://drive.google.com/drive/folders/16XavrVaFysqxtNRCLTIRO2LoCccfQnJQ?usp=sharing
+
+SDD L-atribuída e SDT EXPA:
+
+https://docs.google.com/document/d/1KJOqgm25hq13CmFP1wg2hCfFMRhoZND_jPiUbSrLJlQ/edit?usp=sharing
+
+SDD L-atribuída e SDT DEC:
+
+https://docs.google.com/document/d/1UTh-SCL2MNAumsUx2gtn21WuXNp7UVv-egpEMnGIGdU/edit?usp=sharing
+
+SDD L-atribuída e SDT GCI:
+
+https://docs.google.com/document/d/1RIbBBhmYcqnmmwKndQyzZV3hIItGli-nGlBLbHxL8YQ/edit?usp=sharing
