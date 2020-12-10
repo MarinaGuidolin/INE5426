@@ -22,7 +22,6 @@ import static java.lang.System.exit;
     int temporaryCounter, labelCounter, funcCounter, beginCounter, exprTrueCounter, exprFalseCounter = 0;
 
     ExpressionTree addTree(Node node) {
-
         ExpressionTree expTree = new ExpressionTree(node, temporaryCounter);
         Node root = expTree.getRoot();
         String result = expTree.validateTree(root);
@@ -415,10 +414,15 @@ atribstat2
 	}
 ;
 
- atribstat3[Node h]
+atribstat3[Node h]
     returns [String code, String last]
     locals [ExpressionTree expTree]
- :
+    @init {
+            $code = "";
+            $last = "";
+            $expTree = new ExpressionTree();
+    }
+:
 	b[h] d[$b.sin] c[$d.sin] expression2 {$expTree = addTree($c.sin);}
 
 	{

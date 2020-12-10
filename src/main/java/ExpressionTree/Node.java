@@ -6,6 +6,7 @@ public class Node {
 	private Node right;
 	private String type;
 
+	// Exemplo: operando("array") Node(operando) Node(operando) tipo
 	public Node(String value, Node left, Node right, String type) {
 		this.value = value;
 		this.left = left;
@@ -13,6 +14,7 @@ public class Node {
 		this.type = type;
 	}
 
+	// Exemplo: operador Node(operando/operador) Node(operando/operador)
 	public Node(String value, Node left, Node right) {
 		this.value = value;
 		this.left = left;
@@ -20,6 +22,7 @@ public class Node {
 		this.type = "";
 	}
 
+	// Exemplo: operando tipo
 	public Node(String value, String type) {
 		this.value = value;
 		this.left = null;
@@ -28,16 +31,18 @@ public class Node {
 	}
 
 	public String getValue() {
-		return value;
+		return this.value;
 	}
 
 	public String getIdent() {
-		if(value == "array") {
-			Node rightChild = right;
-			while (rightChild.right != null) {
-				rightChild = rightChild.right;
+		if(value.equals("array")) {
+			Node rightChild = this.right;
+			if (rightChild != null) {
+				while (rightChild.right != null) {
+					rightChild = rightChild.right;
+				}
+				return rightChild.getValue();
 			}
-			return rightChild.getValue();
 		}
 		return "";
 	}
@@ -47,22 +52,24 @@ public class Node {
 	}
 
 	public Node getLeft() {
-		return left;
+		return this.left;
 	}
 
 	public Node getRight() {
-		return right;
+		return this.right;
 	}
 
 	public String getType() {
-		if(value == "array") {
-			Node rightChild = right;
-			while (rightChild.right != null) {
-				rightChild = rightChild.right;
+		if(value.equals("array")) {
+			Node rightChild = this.right;
+			if (rightChild != null) {
+				while (rightChild.right != null) {
+					rightChild = rightChild.right;
+				}
+				return rightChild.getType();
 			}
-			return rightChild.getType();
 		}
-		return type;
+		return this.type;
 	}
 
 	public void setType(String type) {
@@ -73,14 +80,14 @@ public class Node {
 		if (node.left != null) {
 			return getLeftType(node.left);
 		}
-		return getType();
+		return this.getType();
 	}
 
 	public String getRightType(Node node) {
 		if (node.right != null) {
-			return getRightType(node.right);
+			return this.getRightType(node.right);
 		}
-		return getType();
+		return this.getType();
 	}
 
 	@Override
@@ -89,12 +96,12 @@ public class Node {
 	}
 
 	public StringBuilder toString(StringBuilder prefix, boolean isTail, StringBuilder sb) {
-		if(right!=null) {
-			right.toString(new StringBuilder().append(prefix).append(isTail ? "│   " : "    "), false, sb);
+		if(this.right != null) {
+			this.right.toString(new StringBuilder().append(prefix).append(isTail ? "│   " : "    "), false, sb);
 		}
 		sb.append(prefix).append(isTail ? "└── " : "┌── ").append(value).append("\n");
-		if(left!=null) {
-			left.toString(new StringBuilder().append(prefix).append(isTail ? "    " : "│   "), true, sb);
+		if(this.left != null) {
+			this.left.toString(new StringBuilder().append(prefix).append(isTail ? "    " : "│   "), true, sb);
 		}
 		return sb;
 	}

@@ -80,14 +80,15 @@ public class ExpressionTree {
 	}
 
 	public String validateExpressions(String type1, String type2, String operator) {
-		if (operator.equals("+") || operator.equals("-")) {
-			return validateSum(type1, type2);
-		} else if (operator.equals("*")) {
-			return validateSubsMult(type1, type2);
-		} else if (operator.equals("/")) {
-			return validateDivision(type1, type2);
-		} else if (operator.equals("%")) {
-			return validateMod(type1, type2);
+		switch (operator) {
+			case "+":
+				return validateSum(type1, type2);
+			case "*":
+			case "-":
+			case "%":
+				return validateSubsMulMod(type1, type2);
+			case "/":
+				return validateDivision(type1, type2);
 		}
 		return "";
 	}
@@ -104,7 +105,7 @@ public class ExpressionTree {
 		}
 	}
 
-	public String validateSubsMult(String type1, String type2) {
+	public String validateSubsMulMod(String type1, String type2) {
 		if (type1.equals("int") && type2.equals("int")) {
 			return "int";
 		} else if ((type1.equals("float") || type1.equals("int")) && (type2.equals("float") || type2.equals("int"))) {
@@ -116,16 +117,6 @@ public class ExpressionTree {
 
 	public String validateDivision(String type1, String type2) {
 		if ((type1.equals("float") || type1.equals("int")) && (type2.equals("float") || type2.equals("int"))) {
-			return "float";
-		} else {
-			return "";
-		}
-	}
-
-	public String validateMod(String type1, String type2) {
-		if (type1.equals("int") && type2.equals("int")) {
-			return "int";
-		} else if ((type1.equals("float") || type1.equals("int")) && (type2.equals("float") || type2.equals("int"))) {
 			return "float";
 		} else {
 			return "";

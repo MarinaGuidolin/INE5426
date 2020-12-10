@@ -4,8 +4,10 @@ def func1(int A, int B) {
   float x;
   SM[0] = A + B;
   float z;
+  int C;
   SM[1] = B * C;
   int i;
+  i = 1 + 2 + 3 - 4 / 5;
   return;
 }
 
