@@ -1,4 +1,5 @@
 # INE5426
+Esse trabalho tem o objetivo de implementar um compilador a partir da construção de um Analisador Léxico, Sintático e Semântico
 
 ## Grupo - 2
 
